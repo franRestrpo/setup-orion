@@ -1,6 +1,6 @@
 ---
 - name: Incluir tareas de instalación de Docker para el SO correspondiente
-  ansible.builtin.include_tasks: "{{ ansible_facts['os_family'] | lower }}.yml"
+  ansible.builtin.include_tasks: "install_{{ ansible_facts['os_family'] | lower }}.yml"
   when: ansible_facts['os_family'] == 'Debian'
 
 - name: Verificar versión de Docker
