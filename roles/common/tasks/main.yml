@@ -27,3 +27,12 @@
   register: venv_check
   changed_when: false
   failed_when: venv_check.rc != 0
+
+- name: Verificar versión de Git
+  ansible.builtin.command: git --version
+  register: git_version
+  changed_when: false
+
+- name: Almacenar versión de Git como fact
+  ansible.builtin.set_fact:
+    installed_git_version: "{{ git_version.stdout }}"

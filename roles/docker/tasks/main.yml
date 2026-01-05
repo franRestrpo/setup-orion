@@ -1,0 +1,22 @@
+---
+- name: Incluir tareas de instalación de Docker para el SO correspondiente
+  ansible.builtin.include_tasks: "{{ ansible_facts['os_family'] | lower }}.yml"
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Verificar versión de Docker
+  ansible.builtin.command: docker --version
+  register: docker_version
+  changed_when: false
+
+- name: Almacenar versión de Docker como fact
+  ansible.builtin.set_fact:
+    installed_docker_version: "{{ docker_version.stdout }}"
+
+- name: Verificar versión de Docker Compose
+  ansible.builtin.command: docker compose version
+  register: docker_compose_version
+  changed_when: false
+
+- name: Almacenar versión de Docker Compose como fact
+  ansible.builtin.set_fact:
+    installed_docker_compose_version: "{{ docker_compose_version.stdout }}"

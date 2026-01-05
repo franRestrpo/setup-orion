@@ -13,3 +13,15 @@
   roles:
     - common
     - docker
+
+  post_tasks:
+    - name: "Informe Final: Resumen de Versiones"
+      ansible.builtin.debug:
+        msg: |
+          --------------------------------------------------
+          ✅ Despliegue de Infraestructura Completado
+          --------------------------------------------------
+          - Git: {{ installed_git_version | default('No detectado') }}
+          - Docker: {{ installed_docker_version | default('No detectado') }}
+          - Docker Compose: {{ installed_docker_compose_version | default('No detectado') }}
+          --------------------------------------------------
