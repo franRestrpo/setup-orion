@@ -1,0 +1,29 @@
+El proyecto Setup-Orion es un script de instalación y configuración para sistemas operativos basados en Debian. A continuación, se proporciona una descripción detallada de su funcionalidad:
+
+**Verificación del Sistema Operativo**
+
+- Verifica si el sistema operativo es Debian 11.
+
+**Verificación de Permisos**
+
+- Verifica si el usuario que ejecuta el script tiene permisos de root.
+
+**Instalación de Dependencias**
+
+- Instala Docker y lo configura para asegurarse de que esté funcionando correctamente.
+- Instala herramientas adicionales como `sudo`, `apt-utils`, `dialog`, `jq`, `apache2-utils`, `git`, `python3` y `neofetch`.
+
+**Actualización y Mejoras**
+
+- Actualiza el sistema operativo.
+- Realiza mejoras en el sistema.
+
+**Descarga y Ejecución del Script**
+
+- Descarga el script `SetupOrion` desde un repositorio remoto.
+- Lo hace ejecutable y lo ejecuta.
+
+**Funcionalidades Adicionales**
+
+- Presenta un menú interactivo para el usuario.
+- Permite la configuración de diversos servicios y herramientas.

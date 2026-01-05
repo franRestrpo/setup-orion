@@ -1,0 +1,10 @@
+# Entornos virtuales de Python
+venv/
+*.pyc
+__pycache__/
+
+# Archivos de reintento de Ansible
+*.retry
+
+# Logs y outputs
+*.log

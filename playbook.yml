@@ -1,0 +1,15 @@
+---
+- name: Orion Design - Modern Infrastructure Setup
+  hosts: servers
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - name: Verificar/Instalar Python3 en el destino (Raw)
+      raw: test -e /usr/bin/python3 || (apt -y update && apt install -y python3-minimal)
+      changed_when: false
+      failed_when: false
+
+  roles:
+    - common
+    - docker

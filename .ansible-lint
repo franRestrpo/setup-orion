@@ -1,0 +1,5 @@
+---
+# Fichero de configuración para ansible-lint
+# Ignorar reglas específicas si es necesario
+# skip_list:
+#   - 'yaml'  # Ejemplo: Ignorar reglas de formato YAML

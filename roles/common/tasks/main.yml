@@ -1,0 +1,29 @@
+---
+- name: Cargar variables específicas del SO (si existen)
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_os_family }}.yml"
+        - "default.yml"
+      skip: true
+
+- name: Actualizar caché y sistema operativo (Debian/Ubuntu)
+  ansible.builtin.apt:
+    update_cache: yes
+    upgrade: dist
+    autoremove: yes
+    clean: yes
+  when: ansible_os_family == "Debian"
+
+- name: Instalar paquetes base (Desde defaults/main.yml)
+  ansible.builtin.package:
+    name: "{{ common_packages + python_packages }}"
+    state: present
+  retries: 3
+  delay: 5
+
+- name: Verificar instalación de Python y Venv
+  ansible.builtin.command: python3 -m venv --help
+  register: venv_check
+  changed_when: false
+  failed_when: venv_check.rc != 0

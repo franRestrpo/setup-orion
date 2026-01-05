@@ -1,0 +1,7 @@
+---
+# roles/common/vars/main.yml
+# Aquí puedes definir variables comunes para todos los servidores.
+# Por ejemplo:
+#
+# domain_name: "orion.local"
+# admin_email: "admin@orion.local"
