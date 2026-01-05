@@ -1,0 +1,14 @@
+---
+# Paquetes base para cualquier sistema
+common_packages:
+  - git
+  - curl
+  - wget
+  - htop
+  - neofetch
+
+# Paquetes de Python esenciales
+python_packages:
+  - python3
+  - python3-pip
+  - python3-venv

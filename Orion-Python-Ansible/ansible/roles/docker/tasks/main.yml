@@ -1,0 +1,14 @@
+---
+- name: Incluir tareas de instalación de Docker para el SO correspondiente
+  ansible.builtin.include_tasks: "install_{{ ansible_facts['os_family'] | lower }}.yml"
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat']
+
+- name: Verificar la instalación de Docker
+  ansible.builtin.command: docker --version
+  register: docker_version
+  changed_when: false
+  failed_when: docker_version.rc != 0
+
+- name: Almacenar versión de Docker como fact
+  ansible.builtin.set_fact:
+    installed_docker_version: "{{ docker_version.stdout }}"
