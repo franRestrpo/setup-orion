@@ -26,3 +26,11 @@ source venv/bin/activate
 
 # Ejecuta el playbook
 ansible-playbook -i inventory.ini playbook.yml --ask-become-pass
+
+## ¿Cómo sé si todo se desplegó correctamente?
+
+Al final de la ejecución, fíjate en estos tres puntos:
+
+1.  **`PLAY RECAP` sin fallos**: La línea `failed=0` indica que todas las tareas se ejecutaron sin errores.
+2.  **Informe Final**: Verás un resumen con las versiones de las herramientas clave (`git`, `docker`, etc.). Si se muestra correctamente, es una confirmación de que todo está instalado.
+3.  **Idempotencia**: Si ejecutas el playbook de nuevo y ves `changed=0`, significa que el sistema ya estaba en el estado deseado.
