@@ -1,4 +1,5 @@
 - name: Configure Docker repository for Debian
+  when: ansible_os_family == "Debian"
   block:
     - name: Add Docker GPG key
       ansible.builtin.apt_key:
@@ -6,7 +7,6 @@
     - name: Add Docker repository
       ansible.builtin.apt_repository:
         repo: "deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
-  when: ansible_os_family == "Debian"
 
 - name: Configure Docker repository for RedHat
   ansible.builtin.get_url:

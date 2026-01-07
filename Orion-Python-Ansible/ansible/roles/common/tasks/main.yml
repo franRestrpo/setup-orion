@@ -18,3 +18,18 @@
   ansible.builtin.package:
     name: "{{ common_python_packages }}"
     state: present
+
+- name: Obtener versión de Git
+  ansible.builtin.command: git --version
+  register: git_version_output
+  changed_when: false
+  failed_when: false
+
+- name: Debug Git version output
+  ansible.builtin.debug:
+    var: git_version_output
+
+- name: Establecer fact para la versión de Git
+  ansible.builtin.set_fact:
+    installed_git_version: "{{ git_version_output.stdout }}"
+  when: git_version_output.rc is defined and git_version_output.rc == 0
