@@ -1,0 +1,12 @@
+---
+base_packages:
+  - curl
+  - ca-certificates
+  - jq
+  - gnupg
+  - git
+  - swaks
+  - apache2-utils
+  - neofetch
+
+system_timezone: "America/Bogota"

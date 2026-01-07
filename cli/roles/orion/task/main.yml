@@ -1,9 +1,6 @@
-- command: docker stack ls --format "{{ '{{' }}.Name{{ '}}' }}"
-  register: stacks
-  changed_when: false
-
-- fail:
-    msg: "Stack Orion ya existe"
-  when: "'orion' in stacks.stdout_lines"
-
-- command: docker stack deploy -c docker-compose.yml orion
+- name: Deploy Orion stack
+  docker_stack:
+    state: present
+    name: orion
+    compose:
+      - docker-compose.yml

@@ -27,28 +27,29 @@ def confirm(msg):
     r = input(f"{YELLOW}{msg} (y/N): {RESET}").lower()
     return r == "y"
 
-def playbook(name):
-    run([
+def playbook(name, tags=""):
+    cmd = [
         "ansible-playbook",
         str(PLAYBOOKS / name),
         "-i", "localhost,",
         "-c", "local"
-    ])
+    ]
+    if tags:
+        cmd.extend(["--tags", tags])
+    run(cmd)
 
 def main():
     banner()
 
-    playbook("prechecks.yml")
+    if confirm("¿Desea instalar Orion?"):
+        print(f"{YELLOW}Ejecutando playbook de instalación...{RESET}")
+        playbook("site.yml")
+        print(f"{GREEN}[OK]{RESET} Instalación finalizada.")
 
-    if not confirm("Continuar con instalación base"):
-        sys.exit(0)
-
-    playbook("install.yml")
-    playbook("docker.yml")
-    playbook("swarm.yml")
-    playbook("orion.yml")
-
-    print(f"{GREEN}[OK]{RESET} Instalación finalizada")
+    if confirm("¿Desea desinstalar Orion?"):
+        print(f"{YELLOW}Ejecutando playbook de desinstalación...{RESET}")
+        playbook("remove.yml")
+        print(f"{GREEN}[OK]{RESET} Desinstalación finalizada.")
 
 if __name__ == "__main__":
     main()

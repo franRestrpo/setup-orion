@@ -12,9 +12,9 @@
 
 - name: Paquetes base
   package:
-    name:
-      - curl
-      - ca-certificates
-      - jq
-      - gnupg
+    name: "{{ base_packages }}"
     state: latest
+
+- name: Set timezone
+  timezone:
+    name: "{{ system_timezone }}"
