@@ -1,0 +1,16 @@
+- name: Deploy Orion
+  hosts: localhost
+  become: true
+  vars:
+    stack_name: orion
+
+  tasks:
+    - command: docker stack ls --format "{{ '{{' }}.Name{{ '}}' }}"
+      register: stacks
+      changed_when: false
+
+    - fail:
+        msg: "La stack {{ stack_name }} ya existe. Elimínela desde Portainer."
+      when: stack_name in stacks.stdout_lines
+
+    - command: docker stack deploy -c docker-compose.yml {{ stack_name }}

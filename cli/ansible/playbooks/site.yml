@@ -1,0 +1,8 @@
+- hosts: localhost
+  become: true
+  roles:
+    - prechecks
+    - base
+    - docker
+    - swarm
+    - orion

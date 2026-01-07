@@ -1,0 +1,31 @@
+- name: Docker CE oficial
+  hosts: localhost
+  become: true
+  tasks:
+    - block:
+        - apt_key:
+            url: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
+            state: present
+        - apt_repository:
+            repo: "deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+            state: present
+      when: ansible_os_family == "Debian"
+
+    - get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+      when: ansible_os_family == "RedHat"
+
+    - name: Instalar Docker
+      package:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: latest
+
+    - service:
+        name: docker
+        enabled: true
+        state: started

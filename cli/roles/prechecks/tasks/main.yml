@@ -1,0 +1,4 @@
+- assert:
+    that:
+      - ansible_os_family in ["Debian", "RedHat"]
+      - ansible_architecture in ["x86_64", "amd64"]

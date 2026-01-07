@@ -1,0 +1,10 @@
+- name: Docker Swarm
+  hosts: localhost
+  become: true
+  tasks:
+    - command: docker info --format '{{ "{{" }}.Swarm.LocalNodeState{{ "}}" }}'
+      register: swarm
+      changed_when: false
+
+    - command: docker swarm init
+      when: swarm.stdout != "active"
