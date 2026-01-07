@@ -1,20 +1,20 @@
 - name: Update Debian
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
     upgrade: dist
   when: ansible_os_family == "Debian"
 
 - name: Update RedHat
-  dnf:
+  ansible.builtin.dnf:
     name: "*"
-    state: latest
+    state: present
   when: ansible_os_family == "RedHat"
 
 - name: Paquetes base
-  package:
+  ansible.builtin.package:
     name: "{{ base_packages }}"
-    state: latest
+    state: present
 
 - name: Set timezone
-  timezone:
-    name: "{{ system_timezone }}"
+  community.general.timezone:
+    name: "{{ base_system_timezone }}"

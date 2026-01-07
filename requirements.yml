@@ -1,3 +1,5 @@
+---
+roles: []
 # roles:
 #   # Ejemplo de cómo añadir un rol de Ansible Galaxy:
 #   # - src: geerlingguy.docker

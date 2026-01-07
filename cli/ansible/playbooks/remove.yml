@@ -1,7 +1,8 @@
-- hosts: localhost
+- name: Remove Orion Stack
+  hosts: localhost
   become: true
   tasks:
     - name: Remove Orion stack
-      docker_stack:
+      community.docker.docker_stack:
         state: absent
         name: orion

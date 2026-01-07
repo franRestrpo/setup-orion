@@ -9,4 +9,4 @@ base_packages:
   - apache2-utils
   - neofetch
 
-system_timezone: "America/Bogota"
+base_system_timezone: "America/Bogota"

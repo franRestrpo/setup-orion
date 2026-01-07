@@ -1,4 +1,5 @@
-- hosts: localhost
+- name: Deploy Orion Site
+  hosts: localhost
   become: true
   roles:
     - prechecks

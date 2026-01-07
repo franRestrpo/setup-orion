@@ -3,12 +3,12 @@
   gather_facts: true
   tasks:
     - name: SO soportado
-      assert:
+      ansible.builtin.assert:
         that:
           - ansible_os_family in ["Debian", "RedHat"]
         fail_msg: "SO no soportado"
 
     - name: Arquitectura soportada
-      assert:
+      ansible.builtin.assert:
         that:
           - ansible_architecture in ["x86_64", "amd64"]

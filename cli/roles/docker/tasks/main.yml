@@ -1,24 +1,31 @@
-- block:
-    - apt_key:
+- name: Configure Docker repository for Debian
+  block:
+    - name: Add Docker GPG key
+      ansible.builtin.apt_key:
         url: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
-    - apt_repository:
+    - name: Add Docker repository
+      ansible.builtin.apt_repository:
         repo: "deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
   when: ansible_os_family == "Debian"
 
-- get_url:
+- name: Configure Docker repository for RedHat
+  ansible.builtin.get_url:
     url: https://download.docker.com/linux/centos/docker-ce.repo
     dest: /etc/yum.repos.d/docker-ce.repo
+    mode: '0644'
   when: ansible_os_family == "RedHat"
 
-- package:
+- name: Install Docker packages
+  ansible.builtin.package:
     name:
       - docker-ce
       - docker-ce-cli
       - containerd.io
       - docker-compose-plugin
-    state: latest
+    state: present
 
-- service:
+- name: Start Docker service
+  ansible.builtin.service:
     name: docker
     enabled: true
     state: started

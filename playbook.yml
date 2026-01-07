@@ -6,7 +6,7 @@
 
   pre_tasks:
     - name: Verificar/Instalar Python3 en el destino (Raw)
-      raw: test -e /usr/bin/python3 || (apt -y update && apt install -y python3-minimal)
+      ansible.builtin.raw: test -e /usr/bin/python3 || (apt -y update && apt install -y python3-minimal)
       changed_when: false
       failed_when: false
 
@@ -24,7 +24,7 @@
           - "======================================================="
           - ""
           - "  - Git:            {{ installed_git_version | trim | default('No detectado') }}"
-          - "  - Docker:         {{ installed_docker_version | trim | default('No detectado') }}"
+          - "  - Docker:         {{ docker_installed_version | trim | default('No detectado') }}"
           - "  - Docker Compose: {{ installed_docker_compose_version | trim | default('No detectado') }}"
           - ""
           - "======================================================="

@@ -11,4 +11,4 @@
 
 - name: Almacenar versión de Docker como fact
   ansible.builtin.set_fact:
-    installed_docker_version: "{{ docker_version.stdout }}"
+    docker_installed_version: "{{ docker_version.stdout }}"

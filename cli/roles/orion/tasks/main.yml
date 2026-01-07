@@ -1,5 +1,5 @@
 - name: Deploy Orion stack
-  docker_stack:
+  community.docker.docker_stack:
     state: present
     name: orion
     compose:

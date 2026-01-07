@@ -29,10 +29,10 @@
       - containerd.io
       - docker-compose-plugin
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Asegurar que el servicio Docker esté en ejecución
   ansible.builtin.systemd:
     name: docker
     state: started
-    enabled: yes
+    enabled: true
