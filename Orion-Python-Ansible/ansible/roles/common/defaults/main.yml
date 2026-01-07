@@ -6,6 +6,10 @@ common_packages:
   - wget
   - htop
   - neofetch
+  - dialog
+  - apt-utils
+  - jq
+  - apache2-utils
 
 # Paquetes de Python esenciales
 common_python_packages:

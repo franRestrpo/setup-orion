@@ -21,5 +21,16 @@
 
 - name: Almacenar versión de Docker Compose como fact
   ansible.builtin.set_fact:
-    installed_docker_compose_version: "{{ docker_compose_version.stdout }}"
+    docker_installed_compose_version: "{{ docker_compose_version.stdout }}"
   when: docker_compose_version.rc == 0
+
+- name: Verificar estado de Docker Swarm
+  ansible.builtin.command: docker info --format '{{ "{{" }}.Swarm.LocalNodeState{{ "}}" }}'
+  register: docker_swarm_status
+  changed_when: false
+  failed_when: false
+
+- name: Inicializar Docker Swarm
+  ansible.builtin.command: docker swarm init
+  when: docker_swarm_status.stdout != "active"
+  changed_when: true

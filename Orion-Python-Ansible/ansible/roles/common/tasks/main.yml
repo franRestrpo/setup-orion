@@ -20,16 +20,16 @@
     state: present
 
 - name: Obtener versión de Git
-  ansible.builtin.command: git --version
-  register: git_version_output
+  ansible.builtin.command: git --version  # noqa: command-instead-of-module
+  register: common_git_version_output
   changed_when: false
   failed_when: false
 
 - name: Debug Git version output
   ansible.builtin.debug:
-    var: git_version_output
+    var: common_git_version_output
 
 - name: Establecer fact para la versión de Git
   ansible.builtin.set_fact:
-    installed_git_version: "{{ git_version_output.stdout }}"
-  when: git_version_output.rc is defined and git_version_output.rc == 0
+    common_installed_git_version: "{{ common_git_version_output.stdout }}"
+  when: common_git_version_output.rc is defined and common_git_version_output.rc == 0
