@@ -33,11 +33,11 @@ menu_instalador="1"
 ## // ## // ## // ## // ## // ## // ## // ## //## // ## // ## // ## // ## // ## // ## // ## // ##
 
 home_directory="$HOME"
-dados_vps="${home_directory}/dados_vps/dados_vps"
+datos_vps="${home_directory}/datos_vps/datos_vps"
 
 dados() {
-    nome_servidor=$(grep "Nome do Servidor:" "$dados_vps" | awk -F': ' '{print $2}')
-    nome_rede_interna=$(grep "Rede interna:" "$dados_vps" | awk -F': ' '{print $2}')
+    nome_servidor=$(grep "Nome do Servidor:" "$datos_vps" | awk -F': ' '{print $2}')
+    nome_rede_interna=$(grep "Rede interna:" "$datos_vps" | awk -F': ' '{print $2}')
 }
 
 ## // ## // ## // ## // ## // ## // ## // ## //## // ## // ## // ## // ## // ## // ## // ## // ##
@@ -2424,8 +2424,8 @@ stack_editavel(){
         echo "3/10 - [ OFF ] - Erro ao instalar JQ Método 2/2"
     fi
 
-    ## Definindo o diretório do arquivo dados_portainer
-    arquivo="/root/dados_vps/dados_portainer"
+    ## Definindo o diretório do arquivo datos_portainer
+    arquivo="/root/datos_vps/datos_portainer"
 
     ## Verifica se o arquivo existe
     if [ ! -f "$arquivo" ]; then
@@ -2440,7 +2440,7 @@ stack_editavel(){
     sed -i 's/Dominio do portainer: https:\/\/\(.*\)/Dominio do portainer: \1/' "$arquivo"
 
     ## Pega o usuario do portainer
-    USUARIO=$(grep "Usuario: " /root/dados_vps/dados_portainer | awk -F "Usuario: " '{print $2}')
+    USUARIO=$(grep "Usuario: " /root/datos_vps/datos_portainer | awk -F "Usuario: " '{print $2}')
     if [ $? -eq 0 ]; then
         echo -e "4/10 - [ OK ] - Pegando usuario do portainer: $beige$USUARIO$reset"
     else
@@ -2449,7 +2449,7 @@ stack_editavel(){
 
 
     ## Pega a senha do portainer
-    SENHA=$(grep "Senha: " /root/dados_vps/dados_portainer | awk -F "Senha: " '{print $2}')
+    SENHA=$(grep "Senha: " /root/datos_vps/datos_portainer | awk -F "Senha: " '{print $2}')
     esconder_senha "$SENHA"
     if [ $? -eq 0 ]; then
         echo -e "5/10 - [ OK ] - Pegando a senha do portainer: $beige$SENHAOCULTA$reset"
@@ -2458,7 +2458,7 @@ stack_editavel(){
     fi
 
     ## Pega a URL do portainer
-    PORTAINER_URL=$(grep "Dominio do portainer: " /root/dados_vps/dados_portainer | awk -F "Dominio do portainer: " '{print $2}')
+    PORTAINER_URL=$(grep "Dominio do portainer: " /root/datos_vps/datos_portainer | awk -F "Dominio do portainer: " '{print $2}')
     if [ $? -eq 0 ]; then
         echo -e "6/10 - [ OK ] - Pegando dominio do Portainer: $beige$PORTAINER_URL$reset"
     else
@@ -2466,7 +2466,7 @@ stack_editavel(){
     fi
 
     ## Usa o token do portainer
-    #TOKEN=$(grep "Token: " /root/dados_vps/dados_portainer | awk -F "Token: " '{print $2}')
+    #TOKEN=$(grep "Token: " /root/datos_vps/datos_portainer | awk -F "Token: " '{print $2}')
     
     ## Pega um token do portainer
     #TOKEN=$(curl -k -X POST -H "Content-Type: application/json" -d "{\"username\":\"$USUARIO\",\"password\":\"$SENHA\"}" https://$PORTAINER_URL/api/auth | jq -r .jwt)
@@ -2517,7 +2517,7 @@ stack_editavel(){
     #fi
 
     ## Salva dados no arquivo do portainer
-    echo -e "[ PORTAINER ]\nDominio do portainer: $PORTAINER_URL\n\nUsuario: $USUARIO\n\nSenha: $SENHA\n\nToken: $TOKEN" > "/root/dados_vps/dados_portainer"
+    echo -e "[ PORTAINER ]\nDominio do portainer: $PORTAINER_URL\n\nUsuario: $USUARIO\n\nSenha: $SENHA\n\nToken: $TOKEN" > "/root/datos_vps/datos_portainer"
 
     ## Pegando o id do portainer
     ENDPOINT_ID=$(curl -k -s -X GET -H "Authorization: Bearer $TOKEN" https://$PORTAINER_URL/api/endpoints | jq -r '.[] | select(.Name == "primary") | .Id')
@@ -2584,7 +2584,7 @@ stack_editavel(){
 ## Função para verificar se o arquivo de dados do Portainer existe
 verificar_arquivo() {
     sudo apt install jq -y > /dev/null 2>&1
-    if [ ! -f "/root/dados_vps/dados_portainer" ]; then
+    if [ ! -f "/root/datos_vps/datos_portainer" ]; then
         nome_credenciais
         criar_arquivo
     else
@@ -2595,8 +2595,8 @@ verificar_arquivo() {
 
 ## Função para criar o arquivo de dados do Portainer
 criar_arquivo() {
-    if [ -f "/root/dados_vps/dados_portainer" ]; then
-        rm "/root/dados_vps/dados_portainer"
+    if [ -f "/root/datos_vps/datos_portainer" ]; then
+        rm "/root/datos_vps/datos_portainer"
         echo "Arquivo existente removido."
     fi
 
@@ -2622,9 +2622,9 @@ criar_arquivo() {
 
 ## Função para verificar os campos do arquivo de dados do Portainer
 verificar_campos() {
-    PORTAINER_URL=$(grep -oP '(?<=Dominio do portainer: ).*' /root/dados_vps/dados_portainer)
-    USUARIO=$(grep -oP '(?<=Usuario: ).*' /root/dados_vps/dados_portainer)
-    SENHA=$(grep -oP '(?<=Senha: ).*' /root/dados_vps/dados_portainer)
+    PORTAINER_URL=$(grep -oP '(?<=Dominio do portainer: ).*' /root/datos_vps/datos_portainer)
+    USUARIO=$(grep -oP '(?<=Usuario: ).*' /root/datos_vps/datos_portainer)
+    SENHA=$(grep -oP '(?<=Senha: ).*' /root/datos_vps/datos_portainer)
 
     ## se por acaso não tiver login nem senha lá vem para ca
     if [ -z "$USUARIO" ] || [ -z "$SENHA" ]; then
@@ -2751,7 +2751,7 @@ verificar_token() {
 
 ## Função para atualizar o arquivo de dados do Portainer com o novo usuário e senha
 atualizar_arquivo() {
-    echo -e "[ PORTAINER ]\nDominio do portainer: $PORTAINER_URL\n\nUsuario: $USUARIO\n\nSenha: $SENHA\n\nToken: $TOKEN" > "/root/dados_vps/dados_portainer"
+    echo -e "[ PORTAINER ]\nDominio do portainer: $PORTAINER_URL\n\nUsuario: $USUARIO\n\nSenha: $SENHA\n\nToken: $TOKEN" > "/root/datos_vps/datos_portainer"
     echo -e "\nArquivo de dados do Portainer atualizado com sucesso!"
 }
 
@@ -3806,20 +3806,20 @@ sleep 1
 cd
 cd
 
-## Verifica se já não existe uma pasta chamada "dados_vps", se existir ele ignora e se não existir ele cria uma
+## Verifica se já não existe uma pasta chamada "datos_vps", se existir ele ignora e se não existir ele cria uma
 ## Esta foi uma PR que veio do usuario Fabio => https://github.com/hipnologo
 
-if [ ! -d "dados_vps" ]; then
-    mkdir dados_vps
+if [ ! -d "datos_vps" ]; then
+    mkdir datos_vps
 fi
 
 ## Fim da PR
 
-## Abre a pasta dados_vps
-cd dados_vps
+## Abre a pasta datos_vps
+cd datos_vps
 
-## Cria um arquivo chamado "dados_vps" com: "nome do servidor", "nome da rede interna", "email", "link do portainer"
-cat > dados_vps << EOL
+## Cria um arquivo chamado "datos_vps" com: "nome do servidor", "nome da rede interna", "email", "link do portainer"
+cat > datos_vps << EOL
 [DADOS DA VPS]
 
 Estes dados foram preenchidos na hora que você foi instalar o Traefik e Portainer e
@@ -4302,11 +4302,11 @@ if [ "$CONTA_CRIADA" = true ]; then
 fi
 
 sleep 5
-## Salvando informações da instalação dentro de /dados_vps/
-cd dados_vps
+## Salvando informações da instalação dentro de /datos_vps/
+cd datos_vps
 
 if [ "$CONTA_CRIADA" = true ]; then
-  cat > dados_portainer <<EOL
+  cat > datos_portainer <<EOL
 [ PORTAINER ]
 
 Dominio do portainer: https://$url_portainer
@@ -4318,7 +4318,7 @@ Senha: $pass_portainer
 Token: $token
 EOL
 else
-  cat > dados_portainer <<EOL
+  cat > datos_portainer <<EOL
 [ PORTAINER ]
 
 Dominio do portainer: https://$url_portainer
@@ -4462,8 +4462,8 @@ stack_editavel #> /dev/null 2>&1
 #    echo "Ops, não foi possivel subir a stack do Postgres."
 #fi
 
-## Salvando informações da instalação dentro de /dados_vps/
-cd dados_vps
+## Salvando informações da instalação dentro de /datos_vps/
+cd datos_vps
 
 cat > dados_postgres <<EOL
 [ POSTGRES ]
@@ -4610,8 +4610,8 @@ telemetria Postgres finalizado
 #    echo "Ops, não foi possivel subir a stack do Postgres."
 #fi
 
-## Salvando informações da instalação dentro de /dados_vps/
-cd dados_vps
+## Salvando informações da instalação dentro de /datos_vps/
+cd datos_vps
 
 cat > dados_postgres${1:+_$1} <<EOL
 [ POSTGRES ]
@@ -4745,8 +4745,8 @@ stack_editavel #> /dev/null 2>&1
 #fi
 #docker stack deploy --prune --resolve-image always -c pgvector.yaml pgvector > /dev/null 2>&1
 
-## Salvando informações da instalação dentro de /dados_vps/
-cd dados_vps
+## Salvando informações da instalação dentro de /datos_vps/
+cd datos_vps
 
 cat > dados_pgvector <<EOL
 [ PGVECTOR ]
@@ -4894,8 +4894,8 @@ telemetria PgVector finalizado
 #fi
 #docker stack deploy --prune --resolve-image always -c pgvector.yaml pgvector > /dev/null 2>&1
 
-## Salvando informações da instalação dentro de /dados_vps/
-cd dados_vps
+## Salvando informações da instalação dentro de /datos_vps/
+cd datos_vps
 
 cat > dados_pgvector${1:+_$1} <<EOL
 [ PGVECTOR ]
@@ -5022,8 +5022,8 @@ stack_editavel #> /dev/null 2>&1
 #    echo "Ops, não foi possivel subir a stack do Redis."
 #fi
 
-## Salvando informações da instalação dentro de /dados_vps/
-cd dados_vps
+## Salvando informações da instalação dentro de /datos_vps/
+cd datos_vps
 
 cat > dados_redis <<EOL
 [ REDIS ]
@@ -5159,8 +5159,8 @@ telemetria Redis finalizado
 #    echo "Ops, não foi possivel subir a stack do Redis."
 #fi
 
-## Salvando informações da instalação dentro de /dados_vps/
-cd dados_vps
+## Salvando informações da instalação dentro de /datos_vps/
+cd datos_vps
 
 cat > dados_redis${1:+_$1} <<EOL
 [ REDIS ]
@@ -5299,8 +5299,8 @@ wait_stack "mysql${1:+_$1}_mysql${1:+_$1}"
 
 #docker stack deploy --prune --resolve-image always -c mysql.yaml mysql #> /dev/null 2>&1
 
-## Salvando informações da instalação dentro de /dados_vps/
-cd dados_vps
+## Salvando informações da instalação dentro de /datos_vps/
+cd datos_vps
 
 cat > dados_mysql <<EOL
 [ MYSQL ]
@@ -5447,8 +5447,8 @@ telemetria MySQL finalizado
 
 #docker stack deploy --prune --resolve-image always -c mysql.yaml mysql #> /dev/null 2>&1
 
-## Salvando informações da instalação dentro de /dados_vps/
-cd dados_vps
+## Salvando informações da instalação dentro de /datos_vps/
+cd datos_vps
 
 cat > dados_mysql${1:+_$1} <<EOL
 [ MYSQL ]
@@ -6081,8 +6081,8 @@ echo ""
 
 telemetria Chatwoot finalizado
 
-## Salvando informações da instalação dentro de /dados_vps/
-cd dados_vps
+## Salvando informações da instalação dentro de /datos_vps/
+cd datos_vps
 
 cat > dados_chatwoot${1:+_$1} <<EOL
 [ CHATWOOT ]
@@ -6526,7 +6526,7 @@ wait_stack evolution${1:+_$1}_evolution${1:+_$1}_redis evolution${1:+_$1}_evolut
 
 telemetria "Evolution API" "finalizado"
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_evolution${1:+_$1} <<EOL
 [ EVOLUTION API ]
@@ -6943,7 +6943,7 @@ wait_stack "evolution${1:+_$1}_lite_evolution${1:+_$1}_lite"
 
 telemetria "Evolution API" "finalizado"
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_evolution${1:+_$1}_lite <<EOL
 [ EVOLUTION API LITE ]
@@ -7273,7 +7273,7 @@ wait_stack "evolution_v1${1:+_$1}_evolution_oriondesign${1:+_$1}"
 
 telemetria "Evolution API (v1)" "finalizado"
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_evolution_v1${1:+_$1} <<EOL
 [ EVOLUTION API ]
@@ -7713,7 +7713,7 @@ wait_stack "evolution_v2${1:+_$1}"
 
 telemetria "Evolution API" "finalizado"
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_evolution_v2${1:+_$1} <<EOL
 [ EVOLUTION API ]
@@ -7991,7 +7991,7 @@ wait_stack minio${1:+_$1}_minio${1:+_$1}
 
 telemetria MinIO finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_minio${1:+_$1} <<EOL
 [ MINIO ]
@@ -8425,7 +8425,7 @@ wait_stack typebot${1:+_$1}_typebot${1:+_$1}_builder typebot${1:+_$1}_typebot${1
 
 telemetria Typebot finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_typebot${1:+_$1} <<EOL
 [ TYPEBOT ]
@@ -9034,7 +9034,7 @@ wait_stack n8n${1:+_$1}_n8n${1:+_$1}_redis n8n${1:+_$1}_n8n${1:+_$1}_editor n8n$
 
 telemetria N8N finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_n8n${1:+_$1} <<EOL
 [ N8N ]
@@ -9308,7 +9308,7 @@ wait_stack flowise${1:+_$1}_flowise${1:+_$1}
 
 telemetria Flowise finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_flowise${1:+_$1} <<EOL
 [ FLOWISE ]
@@ -9538,7 +9538,7 @@ wait_stack pgadmin${1:+_$1}_pgadmin${1:+_$1}
 
 telemetria "PgAdmin 4" "finalizado"
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_pgadmin${1:+_$1} <<EOL
 [ PGADMIN 4 ]
@@ -9821,7 +9821,7 @@ wait_stack nocobase${1:+_$1}_nocobase${1:+_$1}
 
 telemetria Nocobase finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_nocobase<<EOL
 [ NOCOBASE ]
@@ -10098,7 +10098,7 @@ wait_stack botpress${1:+_$1}_botpress${1:+_$1}_redis botpress${1:+_$1}_botpress$
 
 telemetria Botpress finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_botpress${1:+_$1} <<EOL
 [ BOTPRESS ]
@@ -10508,7 +10508,7 @@ docker container prune -f > /dev/null 2>&1
 
 telemetria Wordpress finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > wordpress_$nome_do_servico_wordpress <<EOL
 [ WORDPRESS ]
@@ -10848,7 +10848,7 @@ wait_stack baserow${1:+_$1}_baserow${1:+_$1}_redis baserow${1:+_$1}_baserow${1:+
 telemetria Baserow finalizado
 
 cd
-cd dados_vps
+cd datos_vps
 
 cat > dados_baserow${1:+_$1} <<EOL
 [ BASEROW ]
@@ -11074,7 +11074,7 @@ wait_stack mongodb${1:+_$1}_mongodb${1:+_$1}
 
 telemetria MongoDB finalizado
 
-cd dados_vps
+cd datos_vps
 
 read -r ip _ <<<$(hostname -I)
 ip_vps=$ip
@@ -11316,7 +11316,7 @@ wait_stack rabbitmq${1:+_$1}_rabbitmq${1:+_$1}
 
 telemetria RabbitMQ finalizado
 
-cd dados_vps
+cd datos_vps
 
 ip_vps=$(curl -s ifconfig.me)
 
@@ -11532,7 +11532,7 @@ wait_stack uptimekuma${1:+_$1}_uptimekuma${1:+_$1}
 
 telemetria "Uptime Kuma" "finalizado"
 
-cd dados_vps
+cd datos_vps
 
 ip_vps=$(curl -s ifconfig.me)
 
@@ -11845,7 +11845,7 @@ pull calcom/cal.com:v4.7.8
 ## Usa o serviço wait_stack "calcom" para verificar se o serviço esta online
 wait_stack calcom${1:+_$1}_calcom${1:+_$1}
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_calcom${1:+_$1} <<EOL
 [ CAL.COM ]
@@ -12197,7 +12197,7 @@ wait_stack mautic${1:+_$1}_mautic_web${1:+_$1} mautic${1:+_$1}_mautic_worker${1:
 
 telemetria Mautic finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_mautic${1:+_$1} <<EOL
 [ MAUTIC 5 ]
@@ -12425,7 +12425,7 @@ wait_stack appsmith${1:+_$1}_appsmith${1:+_$1}
 
 telemetria Appsmith finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_appsmith${1:+_$1} <<EOL
 [ APPSMITH ]
@@ -12739,7 +12739,7 @@ wait_stack $containers_qdrant
 
 telemetria QDrant finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_qdrant <<EOL
 [ QDRANT ]
@@ -13256,7 +13256,7 @@ sleep 1
 ## Usa o serviço wait_stack "woofedcrm" para verificar se o serviço esta online
 wait_stack woofedcrm${1:+_$1}_woofedcrm${1:+_$1}_web woofedcrm${1:+_$1}_woofedcrm${1:+_$1}_sidekiq woofedcrm${1:+_$1}_woofedcrm${1:+_$1}_job
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_woofedcrm${1:+_$1} <<EOL
 [ WOOFED CRM ]
@@ -13681,7 +13681,7 @@ wait_stack formbricks${1:+_$1}_formbricks${1:+_$1}_redis formbricks${1:+_$1}_for
 wait_30_sec
 telemetria Formbricks finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_formbricks${1:+_$1} <<EOL
 [ FORMBRICKS ]
@@ -13971,7 +13971,7 @@ wait_stack nocodb${1:+_$1}_nocodb${1:+_$1}
 
 telemetria NocoDB finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_nocodb${1:+_$1} <<EOL
 [ NOCODB ]
@@ -14056,7 +14056,7 @@ while true; do
     ## Mostra mensagem para verificar as informações
     conferindo_as_info
 
-    ARQUIVO_CLICKHOUSE="/root/dados_vps/dados_clickhouse"
+    ARQUIVO_CLICKHOUSE="/root/datos_vps/dados_clickhouse"
 
     API_CLICKHOUSE=$(grep "API do clickhouse:" "$ARQUIVO_CLICKHOUSE" | cut -d ":" -f2- | xargs)
     USUARIO_CLICKHOUSE=$(grep "Usuario:" "$ARQUIVO_CLICKHOUSE" | cut -d ":" -f2- | xargs)
@@ -14409,7 +14409,7 @@ wait_stack langfuse${1:+_$1}_langfuse${1:+_$1}_redis langfuse${1:+_$1}_langfuse$
 
 telemetria Langfuse finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_langfuse${1:+_$1} <<EOL
 [ LANGFUSE ]
@@ -14657,7 +14657,7 @@ wait_stack metabase${1:+_$1}_metabase${1:+_$1}
 
 telemetria MetaBase finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_metabase${1:+_$1} <<EOL
 [ METABASE ]
@@ -14930,7 +14930,7 @@ wait_stack odoo${1:+_$1}_odoo${1:+_$1}_app odoo${1:+_$1}_odoo${1:+_$1}_db
 
 telemetria Odoo finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_odoo${1:+_$1} <<EOL
 [ ODOO ]
@@ -15510,8 +15510,8 @@ fi
 
 echo ""
 
-## Salvando informações da instalação dentro de /dados_vps/
-cd dados_vps
+## Salvando informações da instalação dentro de /datos_vps/
+cd datos_vps
 
 cat > dados_chatwoot_nestor${1:+_$1} <<EOL
 [ CHATWOOT NESTOR ]
@@ -15825,7 +15825,7 @@ wait_stack unoapi${1:+_$1}_unoapi${1:+_$1}_redis unoapi${1:+_$1}_unoapi${1:+_$1}
 
 telemetria "Uno API" "finalizado"
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_unoapi${1:+_$1} <<EOL
 [ UNO API ]
@@ -16433,7 +16433,7 @@ wait_stack n8n_quepasa${1:+_$1}_n8n_quepasa${1:+_$1}_editor n8n_quepasa${1:+_$1}
 
 telemetria "N8N & Quepasa" "finalizado"
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_n8n_quepasa${1:+_$1} <<EOL
 [ N8N QUEPASA ]
@@ -16729,7 +16729,7 @@ wait_stack quepasa${1:+_$1}_quepasa${1:+_$1}
 
 telemetria Quepasa finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_quepasa${1:+_$1} <<EOL
 [ QUEPASA ]
@@ -17039,7 +17039,7 @@ wait_stack docuseal${1:+_$1}_docuseal${1:+_$1}
 
 telemetria Docuseal finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_docuseal${1:+_$1} <<EOL
 [ DOCUSEAL ]
@@ -17486,7 +17486,7 @@ wait_stack monitor_prometheus monitor_grafana monitor_node-exporter monitor_cadv
 
 telemetria Grafana finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_monitor <<EOL
 [ MONITOR ]
@@ -18663,7 +18663,7 @@ wait_stack  dify${1:+_$1}_dify${1:+_$1}_api dify${1:+_$1}_dify${1:+_$1}_worker d
 
 telemetria Dify finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_dify${1:+_$1} <<EOL
 [ DIFY AI ]
@@ -18927,7 +18927,7 @@ wait_stack ollama${1:+_$1}_openwebui${1:+_$1} ollama${1:+_$1}_ollama${1:+_$1}
 
 telemetria Ollama finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_ollama${1:+_$1} <<EOL
 [ OLLAMA ]
@@ -19310,7 +19310,7 @@ wait_stack affine${1:+_$1}_affine${1:+_$1}_redis affine${1:+_$1}_affine${1:+_$1}
 
 telemetria Affine finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_affine${1:+_$1} <<EOL
 [ AFFINE ]
@@ -19701,7 +19701,7 @@ wait_stack directus${1:+_$1}_directus${1:+_$1}_redis directus${1:+_$1}_directus$
 
 telemetria Directus finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_directus${1:+_$1} <<EOL
 [ DIRECTUS ]
@@ -20022,7 +20022,7 @@ wait_stack vaultwarden${1:+_$1}_vaultwarden${1:+_$1}
 
 telemetria VaultWarden finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_vaultwarden${1:+_$1} <<EOL
 [ VAULTWARDEN ]
@@ -20352,7 +20352,7 @@ wait_stack nextcloud${1:+_$1}_nextcloud${1:+_$1}_redis nextcloud${1:+_$1}_nextcl
 
 telemetria NextCloud finalizado
 
-cd dados_vps
+cd datos_vps
 
 # Caminho do arquivo onde a substituição será feita
 wait_30_sec
@@ -20625,7 +20625,7 @@ wait_30_sec
 
 telemetria Strapi finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_strapi${1:+_$1} <<EOL
 [ STRAPI ]
@@ -20882,7 +20882,7 @@ wait_stack phpmyadmin${1:+_$1}_phpmyadmin${1:+_$1}
 telemetria PhpMyAdmin finalizado
 
 cd
-cd dados_vps
+cd datos_vps
 
 cat > dados_phpmyadmin${1:+_$1} <<EOL
 [ PHPMYADMIN ]
@@ -22177,7 +22177,7 @@ pull supabase/studio:2025.11.10-sha-5291fe3 kong:2.8.1 supabase/gotrue:v2.182.1 
 wait_stack supabase${1:+_$1}_supabase${1:+_$1}_db supabase${1:+_$1}_supabase${1:+_$1}_vector supabase${1:+_$1}_supabase${1:+_$1}_analytics supabase${1:+_$1}_supabase${1:+_$1}_meta supabase${1:+_$1}_supabase${1:+_$1}_rest supabase${1:+_$1}_supabase${1:+_$1}_auth supabase${1:+_$1}_supabase${1:+_$1}_realtime supabase${1:+_$1}_supabase${1:+_$1}_storage supabase${1:+_$1}_supabase${1:+_$1}_imgproxy supabase${1:+_$1}_supabase${1:+_$1}_kong supabase${1:+_$1}_supabase${1:+_$1}_functions supabase${1:+_$1}_supabase${1:+_$1}_supavisor supabase${1:+_$1}_supabase${1:+_$1}_studio 
 telemetria Supabase finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_supabase${1:+_$1} <<EOL
 [ SUPABASE ]
@@ -22464,7 +22464,7 @@ wait_stack ntfy${1:+_$1}_ntfy${1:+_$1}
 
 telemetria Ntfy finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_ntfy${1:+_$1} <<EOL
 [ NTFY ]
@@ -22929,7 +22929,7 @@ wait_stack lowcoder${1:+_$1}_lowcoder${1:+-$1}-redis lowcoder${1:+_$1}_lowcoder$
 
 telemetria LowCoder finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_lowcoder${1:+_$1} <<EOL
 [ LOWCODER ]
@@ -23261,7 +23261,7 @@ wait_stack langflow${1:+_$1}_langflow${1:+_$1}_redis langflow${1:+_$1}_langflow$
 
 telemetria Langflow finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_langflow${1:+_$1} <<EOL
 [ LANGFLOW ]
@@ -23590,7 +23590,7 @@ wait_30_sec
 
 telemetria OpenProject finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_openproject${1:+_$1} <<EOL
 [ OPENPROJECT ]
@@ -23922,7 +23922,7 @@ telemetria Zep finalizado
 
 wait_30_sec
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_zep${1:+_$1} <<EOL
 [ ZEP ]
@@ -24337,7 +24337,7 @@ wait_stack humhub${1:+_$1}_humhub${1:+_$1}_redis humhub${1:+_$1}_humhub${1:+_$1}
 
 telemetria HumHub finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_humhub${1:+_$1} <<EOL
 [ HUMHUB ]
@@ -24599,7 +24599,7 @@ wait_stack yourls${1:+_$1}_yourls${1:+_$1}
 
 telemetria Yourls finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_yourls${1:+_$1} <<EOL
 [ YOURLS ]
@@ -25000,7 +25000,7 @@ wait_30_sec
 
 telemetria TwentyCRM finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_twentycrm${1:+_$1} <<EOL
 [ TWENTYCRM ]
@@ -25256,7 +25256,7 @@ wait_stack mattermost${1:+_$1}_mattermost${1:+_$1}
 
 telemetria Mattermost finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_mattermost${1:+_$1} <<EOL
 [ MATTERMOST ]
@@ -25644,7 +25644,7 @@ wait_stack outline${1:+_$1}_outline${1:+_$1}_redis outline${1:+_$1}_outline${1:+
 
 telemetria Outline finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_outline${1:+_$1} <<EOL
 [ OUTLINE ]
@@ -25857,7 +25857,7 @@ wait_stack focalboard${1:+_$1}_focalboard${1:+_$1}
 
 telemetria Focalboard finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_focalboard${1:+_$1} <<EOL
 [ FOCALBOARD ]
@@ -26092,7 +26092,7 @@ wait_stack glpi${1:+_$1}_glpi${1:+_$1}
 
 telemetria GLPI finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_glpi${1:+_$1} <<EOL
 [ GLPI ]
@@ -26355,7 +26355,7 @@ wait_stack anythingllm${1:+_$1}_anythingllm${1:+_$1}
 
 telemetria AnythingLLM finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_anythingllm <<EOL
 [ ANYTHING LLM ]
@@ -26570,7 +26570,7 @@ wait_stack excalidraw${1:+_$1}_excalidraw${1:+_$1}
 
 telemetria Excalidraw finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_excalidraw${1:+_$1} <<EOL
 [ EXCALIDRAW ]
@@ -26842,7 +26842,7 @@ wait_stack easyappointments${1:+_$1}_easyapointments${1:+_$1}
 
 telemetria Easy!Appointments finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_easyappointments${1:+_$1} <<EOL
 [ EASY!APPOINTMENTS ]
@@ -27200,7 +27200,7 @@ wait_stack documenso${1:+_$1}_documenso${1:+_$1}
 
 telemetria Documenso finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_documenso${1:+_$1} <<EOL
 [ DOCUMENSO ]
@@ -27572,7 +27572,7 @@ requisitar_outra_instalacao
 #
 #telemetria Moodle finalizado
 #
-#cd dados_vps
+#cd datos_vps
 #
 #cat > dados_moodle${1:+_$1} <<EOL
 #[ MOODLE ]
@@ -28010,7 +28010,7 @@ wait_stack tooljet${1:+_$1}_tooljet${1:+_$1}_redis tooljet${1:+_$1}_tooljet${1:+
 
 telemetria ToolJet finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_tooljet${1:+_$1} <<EOL
 [ TOOLJET ]
@@ -28335,7 +28335,7 @@ wait_stack stirlingpdf${1:+_$1}_stirlingpdf${1:+_$1}_backend stirlingpdf${1:+_$1
 
 telemetria StirlingPDF finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_stirlingpdf${1:+_$1} <<EOL
 [ STIRLING PDF ]
@@ -28577,7 +28577,7 @@ wait_stack clickhouse${1:+_$1}_clickhouse${1:+_$1}
 
 telemetria ClickHouse finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_clickhouse${1:+_$1} <<EOL
 [ CLICKHOUSE ]
@@ -28833,7 +28833,7 @@ wait_stack redisinsight${1:+_$1}_redisinsight${1:+_$1}
 
 telemetria RedisInsight finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_redisinsight${1:+_$1} <<EOL
 [ REDISINSIGHT ]
@@ -29109,7 +29109,7 @@ wait_stack traccar${1:+_$1}_traccar${1:+_$1} traccar${1:+_$1}_traccar${1:+_$1}_d
 
 telemetria Traccar finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_traccar${1:+_$1} <<EOL
 [ TRACCAR ]
@@ -29566,7 +29566,7 @@ wait_stack firecrawl${1:+_$1}_firecrawl${1:+_$1}_nuq_postgres firecrawl${1:+_$1}
 
 telemetria Firecrawl finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_firecrawl${1:+_$1} <<EOL
 [ FIRECRAWL ]
@@ -29826,7 +29826,7 @@ wait_stack wuzapi${1:+_$1}_wuzapi${1:+_$1}
 
 telemetria Wuzapi finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_wuzapi${1:+_$1} <<EOL
 [ WUZAPI ]
@@ -30270,7 +30270,7 @@ fi
 
 telemetria "Krayin CRM" "finalizado"
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_krayincrm${1:+_$1} <<EOL
 [ KRAYIN CRM ]
@@ -30689,7 +30689,7 @@ wait_stack planka${1:+_$1}_planka${1:+_$1}_redis planka${1:+_$1}_planka${1:+_$1}
 
 telemetria Planka finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_planka${1:+_$1} <<EOL
 [ PLANKA ]
@@ -30902,7 +30902,7 @@ wait_stack wppconnect${1:+_$1}_wppconnect${1:+_$1}_api
 
 telemetria WPPConnect finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_wppconnect${1:+_$1} <<EOL
 [ WPPCONNECT ]
@@ -31110,7 +31110,7 @@ wait_stack browserless${1:+_$1}_browserless${1:+_$1}
 
 telemetria Browserless finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_browserless${1:+_$1} <<EOL
 [ BROWSERLESS ]
@@ -31581,7 +31581,7 @@ docker exec -it $(docker ps -qf "name=erpnext${1:+_$1}_backend") bash -c "bench 
 
 telemetria ERPNext finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_erpnext${1:+_$1} <<EOL
 [ ERPNEXT ]
@@ -31809,7 +31809,7 @@ wait_stack bolt${1:+_$1}_bolt${1:+_$1}_app
 
 telemetria Bolt finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_bolt${1:+_$1} <<EOL
 [ BOLT ]
@@ -32289,7 +32289,7 @@ sleep 30
 
 telemetria WiseMapping finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_wisemapping${1:+_$1} <<EOL
 [ WISEMAPPING ]
@@ -32727,7 +32727,7 @@ wait_stack evoai${1:+_$1}_evoai${1:+_$1}_redis evoai${1:+_$1}_evoai${1:+_$1}_api
 
 telemetria EvoAI finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_evoai${1:+_$1} <<EOL
 [ EVO AI ]
@@ -33016,7 +33016,7 @@ wait_stack keycloak${1:+_$1}_keycloak${1:+_$1}
 
 telemetria Keycloak finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_keycloak${1:+_$1} <<EOL
 [ KEYCLOAK ]
@@ -33474,7 +33474,7 @@ docker ps -a --filter "name=passbolt" --filter "status=exited" -q | xargs -r doc
 
 telemetria PassBolt finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_passbolt${1:+_$1} <<EOL
 [ PASSBOLT ]
@@ -33723,7 +33723,7 @@ wait_stack gotenberg${1:+_$1}_gotenberg${1:+_$1}
 
 telemetria Gotenberg finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_gotenberg${1:+_$1} <<EOL
 [ GOTENBERG ]
@@ -33957,7 +33957,7 @@ wait_stack wiki${1:+_$1}_wiki${1:+_$1}_db wiki${1:+_$1}_wiki${1:+_$1}_app
 
 telemetria wiki finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_wiki${1:+_$1} <<EOL
 [ WIKI ]
@@ -34253,7 +34253,7 @@ wait_stack azuracast${1:+_$1}_azuracast${1:+_$1}_web azuracast${1:+_$1}_azuracas
 
 telemetria AzuraCast finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_azuracast${1:+_$1} <<EOL
 [ AZURACAST ]
@@ -34589,7 +34589,7 @@ wait_stack shlink${1:+_$1}_shlink${1:+_$1}_app shlink${1:+_$1}_shlink${1:+_$1}_a
 
 telemetria shlink finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_shlink${1:+_$1} <<EOL
 [ SHLINK ]
@@ -34884,7 +34884,7 @@ wait_stack rustdesk${1:+_$1}_rustdesk${1:+_$1}_hbbs rustdesk${1:+_$1}_rustdesk${
 
 telemetria RustDesk finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_rustdesk${1:+_$1} <<EOL
 [ RUSTDESK ]
@@ -35353,7 +35353,7 @@ wait_stack hoppscotch${1:+_$1}_hoppscotch${1:+_$1}_migrate hoppscotch${1:+_$1}_h
 
 telemetria Hoppscotch finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_hoppscotch${1:+_$1} <<EOL
 [ HOPPSCOTCH ]
@@ -35648,7 +35648,7 @@ wait_stack transcrevezap${1:+_$1}_transcrevezap${1:+_$1} transcrevezap${1:+_$1}_
 
 telemetria TranscreveZap finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_transcrevezap${1:+_$1} <<EOL
 [ TRANSCREVEZAP ]
@@ -35855,7 +35855,7 @@ wait_stack omnitools${1:+_$1}_omnitools${1:+_$1}
 
 telemetria OmniTools finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_omnitools${1:+_$1} <<EOL
 [ OMNITOOLS ]
@@ -36084,7 +36084,7 @@ wait_stack serpbear${1:+_$1}_serpbear${1:+_$1}
 
 telemetria Serpbear finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_serpbear${1:+_$1} <<EOL
 [ SERPBEAR ]
@@ -36384,7 +36384,7 @@ wait_stack activepieces${1:+_$1}_activepieces${1:+_$1}_redis activepieces${1:+_$
 
 telemetria ActivePieces finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_activepieces${1:+_$1} <<EOL
 [ ACTIVEPIECES ]
@@ -36738,7 +36738,7 @@ wait_stack authentik${1:+_$1}_authentik${1:+_$1}_redis authentik${1:+_$1}_authen
 
 telemetria Authentik finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_authentik${1:+_$1} <<EOL
 [ AUTHENTIK ]
@@ -37050,7 +37050,7 @@ wait_stack checkmate${1:+_$1}_checkmate${1:+_$1}_redis checkmate${1:+_$1}_checkm
 
 telemetria Checkmate finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_checkmate${1:+_$1} <<EOL
 [ CHECKMATE ]
@@ -37347,7 +37347,7 @@ wait_stack heyform${1:+_$1}_heyform${1:+_$1}_redis heyform${1:+_$1}_heyform${1:+
 
 telemetria Heyform finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_heyform${1:+_$1} <<EOL
 [ HEYFORM ]
@@ -37576,7 +37576,7 @@ wait_stack wekan${1:+_$1}_wekan${1:+_$1}
 
 telemetria Wekan finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_wekan${1:+_$1} <<EOL
 [ WEKAN ]
@@ -37882,7 +37882,7 @@ wait_stack opensign${1:+_$1}_opensign${1:+_$1}_server opensign${1:+_$1}_opensign
 
 telemetria OpenSign finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_opensign${1:+_$1} <<EOL
 [ OPENSIGN ]
@@ -38183,7 +38183,7 @@ wait_stack docmost${1:+_$1}_docmost${1:+_$1}_redis docmost${1:+_$1}_docmost${1:+
 
 telemetria Docmost finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_docmost${1:+_$1} <<EOL
 [ DOCMOST ]
@@ -38637,7 +38637,7 @@ wait_stack netbox${1:+_$1}_netbox${1:+_$1}_db netbox${1:+_$1}_netbox${1:+_$1}_re
 
 telemetria NetBox finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_netbox${1:+_$1} <<EOL
 [ NETBOX ]
@@ -38956,7 +38956,7 @@ wait_stack kafka${1:+_$1}_kafka${1:+_$1}_broker kafka${1:+_$1}_kafka${1:+_$1}_ui
 
 telemetria Kafka finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_kafka${1:+_$1} <<EOL
 [ KAFKA ]
@@ -39288,7 +39288,7 @@ wait_stack astracampaign${1:+_$1}_astracampaign${1:+_$1}_redis astracampaign${1:
 
 telemetria AstraCampaign finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_astracampaign${1:+_$1} <<EOL
 [ ASTRACAMPAIGN ]
@@ -39524,7 +39524,7 @@ wait_stack duplicati${1:+_$1}_duplicati${1:+_$1}
 
 telemetria Duplicati finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_duplicati${1:+_$1} <<EOL
 [ DUPLICATI ]
@@ -39763,7 +39763,7 @@ wait_stack pgbackweb${1:+_$1}_pgbackweb${1:+_$1}
 
 telemetria PgBackWeb finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_pgbackweb${1:+_$1} <<EOL
 [ PGBACKWEB ]
@@ -40220,7 +40220,7 @@ docker exec -t "$(docker ps --filter "name=jitsi${1:+_$1}_prosody" -q)" bash -c 
 
 telemetria Jitsi finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_jitsi${1:+_$1} <<EOL
 [ JITSI ]
@@ -40469,7 +40469,7 @@ wait_stack code_server${1:+_$1}_code_server${1:+_$1}
 
 telemetria code_server finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_code_server${1:+_$1} <<EOL
 [ CODE SERVER ]
@@ -40704,7 +40704,7 @@ wait_stack papra${1:+_$1}_papra${1:+_$1}
 
 telemetria Papra finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_papra${1:+_$1} <<EOL
 [ PAPRA ]
@@ -40927,7 +40927,7 @@ wait_stack zerobyte${1:+_$1}_zerobyte${1:+_$1}
 
 telemetria ZeroByte finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_zerobyte${1:+_$1} <<EOL
 [ ZEROBYTE ]
@@ -41191,7 +41191,7 @@ telemetria MCP finalizado
 
 fix_webhook_url_mcp="${WEBHOOK_URL%/}"
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_n8n${1:+_$1}_mpc <<EOL
 [ MCP DO N8N ]
@@ -41399,7 +41399,7 @@ wait_stack openwebui${1:+_$1}_openwebui${1:+_$1}_app
 
 telemetria OpenWebUI finalizado
 
-cd dados_vps
+cd datos_vps
 
 cat > dados_openwebui${1:+_$1} <<EOL
 [ OPENWEBUI ]
@@ -42743,7 +42743,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="chatwoot${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_chatwoot "$opcao2"
                 else
                     APP_ORION="ferramenta_chatwoot"
@@ -42760,7 +42760,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="evolution${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_evolution "$opcao2"
                 else
                     APP_ORION="ferramenta_evolution"
@@ -42776,7 +42776,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="minio${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_minio "$opcao2"
                 else
                     APP_ORION="ferramenta_minio"
@@ -42792,7 +42792,7 @@ while true; do
             if verificar_docker_e_portainer_traefik && verificar_antes_se_tem_minio; then
                 ## INICIO TOKEN
                 STACK_NAME="typebot${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_typebot "$opcao2"
                 else
                     APP_ORION="ferramenta_typebot"
@@ -42808,7 +42808,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="n8n${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_n8n "$opcao2"
                 else
                     APP_ORION="ferramenta_n8n"
@@ -42824,7 +42824,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="flowise${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_flowise "$opcao2"
                 else
                     APP_ORION="ferramenta_flowise"
@@ -42840,7 +42840,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="pgadmin${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_pgAdmin_4 "$opcao2"
                 else
                     APP_ORION="ferramenta_pgAdmin_4"
@@ -42856,7 +42856,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="nocobase${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_nocobase "$opcao2"
                 else
                     APP_ORION="ferramenta_nocobase"
@@ -42872,7 +42872,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="botpress${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_botpress "$opcao2"
                 else
                     APP_ORION="ferramenta_botpress"
@@ -42884,7 +42884,7 @@ while true; do
         11|wordpress|WORDPRESS)
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_wordpress
                 else
                     APP_ORION="ferramenta_wordpress"
@@ -42900,7 +42900,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="baserow${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_baserow "$opcao2"
                 else
                     APP_ORION="ferramenta_baserow" 
@@ -42916,7 +42916,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="mongodb${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_mongodb "$opcao2"
                 else
                     APP_ORION="ferramenta_mongodb"
@@ -42932,7 +42932,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="rabbitmq${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_rabbitmq "$opcao2"
                 else
                     APP_ORION="ferramenta_rabbitmq"
@@ -42948,7 +42948,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="uptimekuma${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_uptimekuma "$opcao2"
                 else
                     APP_ORION="ferramenta_uptimekuma"
@@ -42964,7 +42964,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="calcom${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_calcom "$opcao2"
                 else
                     APP_ORION="ferramenta_calcom"
@@ -42980,7 +42980,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="mautic${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_mautic "$opcao2"
                 else
                     APP_ORION="ferramenta_mautic"
@@ -42997,7 +42997,7 @@ while true; do
                 ## INICIO TOKEN
                 STACK_NAME="appsmith${opcao2:+_$opcao2}"
 
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_appsmith "$opcao2"
                 else
                     APP_ORION="ferramenta_appsmith"
@@ -43013,7 +43013,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="qdrant${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_qdrant "$opcao2"
                 else
                     APP_ORION="ferramenta_qdrant"
@@ -43029,7 +43029,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="woofedcrm${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_woofed "$opcao2"
                 else
                     APP_ORION="ferramenta_woofed"
@@ -43045,7 +43045,7 @@ while true; do
             if verificar_docker_e_portainer_traefik && verificar_antes_se_tem_minio; then
                 ## INICIO TOKEN
                 STACK_NAME="formbricks${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_formbricks "$opcao2"
                 else
                     APP_ORION="ferramenta_formbricks"
@@ -43061,7 +43061,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="nocodb${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_nocodb "$opcao2"
                 else
                     APP_ORION="ferramenta_nocodb"
@@ -43077,7 +43077,7 @@ while true; do
             if verificar_docker_e_portainer_traefik && verificar_antes_se_tem_minio && verificar_antes_se_tem_clickhouse; then
                 ## INICIO TOKEN
                 STACK_NAME="langfuse${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_langfuse "$opcao2"
                 else
                     APP_ORION="ferramenta_langfuse"
@@ -43093,7 +43093,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="metabase${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_metabase "$opcao2"
                 else
                     APP_ORION="ferramenta_metabase"
@@ -43109,7 +43109,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="odoo${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_odoo "$opcao2"
                 else
                     APP_ORION="ferramenta_odoo"
@@ -43126,7 +43126,7 @@ while true; do
             if verificar_docker_e_portainer_traefik && verificar_antes_se_tem_rabbitmq; then
                 ## INICIO TOKEN
                 STACK_NAME="unoapi${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_unoapi "$opcao2"
                 else
                     APP_ORION="ferramenta_unoapi"
@@ -43143,7 +43143,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="quepasa${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_quepasa "$opcao2"
                 else
                     APP_ORION="ferramenta_quepasa"
@@ -43159,7 +43159,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="docuseal${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_docuseal "$opcao2"
                 else
                     APP_ORION="ferramenta_docuseal"
@@ -43175,7 +43175,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="monitor${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_monitor "$opcao2"
                 else
                     APP_ORION="ferramenta_monitor"
@@ -43191,7 +43191,7 @@ while true; do
             if verificar_docker_e_portainer_traefik && verificar_antes_se_tem_minio; then
                 ## INICIO TOKEN
                 STACK_NAME="dify${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_dify "$opcao2"
                 else
                     APP_ORION="ferramenta_dify"
@@ -43207,7 +43207,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="ollama${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_ollama "$opcao2"
                 else
                     APP_ORION="ferramenta_ollama"
@@ -43223,7 +43223,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="affine${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_affine "$opcao2"
                 else
                     APP_ORION="ferramenta_affine"
@@ -43239,7 +43239,7 @@ while true; do
             if verificar_docker_e_portainer_traefik && verificar_antes_se_tem_minio; then
                 ## INICIO TOKEN
                 STACK_NAME="directus${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_directus "$opcao2"
                 else
                     APP_ORION="ferramenta_directus"
@@ -43255,7 +43255,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="vaultwarden${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_vaultwarden "$opcao2"
                 else
                     APP_ORION="ferramenta_vaultwarden"
@@ -43271,7 +43271,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="nextcloud${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_nextcloud "$opcao2"
                 else
                     APP_ORION="ferramenta_nextcloud"
@@ -43287,7 +43287,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="strapi${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_strapi "$opcao2"
                 else
                     APP_ORION="ferramenta_strapi"
@@ -43303,7 +43303,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="phpmyadmin${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_phpmyadmin "$opcao2"
                 else
                     APP_ORION="ferramenta_phpmyadmin"
@@ -43319,7 +43319,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="supabase${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_supabase "$opcao2"
                 else
                     APP_ORION="ferramenta_supabase"
@@ -43335,7 +43335,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="ntfy${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_ntfy "$opcao2"
                 else
                     APP_ORION="ferramenta_ntfy"
@@ -43351,7 +43351,7 @@ while true; do
             if verificar_docker_e_portainer_traefik && verificar_antes_se_tem_mongo; then
                 ## INICIO TOKEN
                 STACK_NAME="lowcoder${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_lowcoder "$opcao2"
                 else
                     APP_ORION="ferramenta_lowcoder"
@@ -43367,7 +43367,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="langflow${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_langflow "$opcao2"
                 else
                     APP_ORION="ferramenta_langflow"
@@ -43383,7 +43383,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="openproject${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_openproject "$opcao2"
                 else
                     APP_ORION="ferramenta_openproject"
@@ -43399,7 +43399,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="zep${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_zep "$opcao2"
                 else
                     APP_ORION="ferramenta_zep"
@@ -43415,7 +43415,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="humhub${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_humhub "$opcao2"
                 else
                     APP_ORION="ferramenta_humhub"
@@ -43431,7 +43431,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="yourls${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_yourls "$opcao2"
                 else
                     APP_ORION="ferramenta_yourls"
@@ -43448,7 +43448,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="twentycrm${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_twentycrm "$opcao2"
                 else
                     APP_ORION="ferramenta_twentycrm"
@@ -43465,7 +43465,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="mattermost${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_mattermost "$opcao2"
                 else
                     APP_ORION="ferramenta_mattermost"
@@ -43482,7 +43482,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="outline${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_outline "$opcao2"
                 else
                     APP_ORION="ferramenta_outline"
@@ -43499,7 +43499,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="focalboard${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_focalboard "$opcao2"
                 else
                     APP_ORION="ferramenta_focalboard"
@@ -43516,7 +43516,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="glpi${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_glpi "$opcao2"
                 else
                     APP_ORION="ferramenta_glpi"
@@ -43533,7 +43533,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="anythingllm${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_anythingllm "$opcao2"
                 else
                     APP_ORION="ferramenta_anythingllm"
@@ -43550,7 +43550,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="excalidraw${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_excalidraw "$opcao2"
                 else
                     APP_ORION="ferramenta_excalidraw"
@@ -43567,7 +43567,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="easyappointments${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_easyappointments "$opcao2"
                 else
                     APP_ORION="ferramenta_easyappointments"
@@ -43584,7 +43584,7 @@ while true; do
             if verificar_docker_e_portainer_traefik && verificar_antes_se_tem_minio; then
                 ## INICIO TOKEN
                 STACK_NAME="documenso${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_documenso "$opcao2"
                 else
                     APP_ORION="ferramenta_documenso"
@@ -43601,7 +43601,7 @@ while true; do
         #    if verificar_docker_e_portainer_traefik; then
         #        ## INICIO TOKEN
         #        STACK_NAME="moodle${opcao2:+_$opcao2}"
-        #        if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+        #        if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
         #            ferramenta_moodle "$opcao2"
         #        else
         #            APP_ORION="ferramenta_moodle"
@@ -43618,7 +43618,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="tooljet${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_tooljet "$opcao2"
                 else
                     APP_ORION="ferramenta_tooljet"
@@ -43635,7 +43635,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="stirlingpdf${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_stirlingpdf "$opcao2"
                 else
                     APP_ORION="ferramenta_stirlingpdf"
@@ -43652,7 +43652,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="clickhouse${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_clickhouse "$opcao2"
                 else
                     APP_ORION="ferramenta_clickhouse"
@@ -43669,7 +43669,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="redisinsight${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_redisinsight "$opcao2"
                 else
                     APP_ORION="ferramenta_redisinsight"
@@ -43686,7 +43686,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="traccar${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_traccar "$opcao2"
                 else
                     APP_ORION="ferramenta_traccar"
@@ -43703,7 +43703,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="firecrawl${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_firecrawl "$opcao2"
                 else
                     APP_ORION="ferramenta_firecrawl"
@@ -43720,7 +43720,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="wuzapi${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_wuzapi "$opcao2"
                 else
                     APP_ORION="ferramenta_wuzapi"
@@ -43737,7 +43737,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="krayincrm${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_krayincrm "$opcao2"
                 else
                     APP_ORION="ferramenta_krayincrm"
@@ -43754,7 +43754,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="planka${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_planka "$opcao2"
                 else
                     APP_ORION="ferramenta_planka"
@@ -43771,7 +43771,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="wppconnect${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_wppconnect "$opcao2"
                 else
                     APP_ORION="ferramenta_wppconnect"
@@ -43788,7 +43788,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="browserless${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_browserless "$opcao2"
                 else
                     APP_ORION="ferramenta_browserless"
@@ -43805,7 +43805,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="erpnext${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_frappe "$opcao2"
                 else
                     APP_ORION="ferramenta_frappe"
@@ -43822,7 +43822,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="bolt${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_bolt "$opcao2"
                 else
                     APP_ORION="ferramenta_bolt"
@@ -43839,7 +43839,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="wisemapping${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_wisemapping "$opcao2"
                 else
                     APP_ORION="ferramenta_wisemapping"
@@ -43856,7 +43856,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="evoai${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_evoai "$opcao2"
                 else
                     APP_ORION="ferramenta_evoai"
@@ -43873,7 +43873,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="keycloak${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_keycloak "$opcao2"
                 else
                     APP_ORION="ferramenta_keycloak"
@@ -43890,7 +43890,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="passbolt${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_passbolt "$opcao2"
                 else
                     APP_ORION="ferramenta_passbolt"
@@ -43907,7 +43907,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="gotenberg${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_gotenberg "$opcao2"
                 else
                     APP_ORION="ferramenta_gotenberg"
@@ -43924,7 +43924,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="wiki${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_wiki "$opcao2"
                 else
                     APP_ORION="ferramenta_wiki"
@@ -43941,7 +43941,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="azuracast${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_azuracast "$opcao2"
                 else
                     APP_ORION="ferramenta_azuracast"
@@ -43958,7 +43958,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="shlink${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_shlink "$opcao2"
                 else
                     APP_ORION="ferramenta_shlink"
@@ -43975,7 +43975,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="rustdesk${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_rustdesk "$opcao2"
                 else
                     APP_ORION="ferramenta_rustdesk"
@@ -43992,7 +43992,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="hoppscotch${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_hoppscotch "$opcao2"
                 else
                     APP_ORION="ferramenta_hoppscotch"
@@ -44009,7 +44009,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="transcrevezap${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_transcrevezap "$opcao2"
                 else
                     APP_ORION="ferramenta_transcrevezap"
@@ -44026,7 +44026,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="omnitools${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_omnitools "$opcao2"
                 else
                     APP_ORION="ferramenta_omnitools"
@@ -44043,7 +44043,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="serpbear${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_serpbear "$opcao2"
                 else
                     APP_ORION="ferramenta_serpbear"
@@ -44060,7 +44060,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="activepieces${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_activepieces "$opcao2"
                 else
                     APP_ORION="ferramenta_activepieces"
@@ -44077,7 +44077,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="authentik${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_authentik "$opcao2"
                 else
                     APP_ORION="ferramenta_authentik"
@@ -44094,7 +44094,7 @@ while true; do
             if verificar_docker_e_portainer_traefik && verificar_antes_se_tem_mongo; then
                 ## INICIO TOKEN
                 STACK_NAME="checkmate${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_checkmate "$opcao2"
                 else
                     APP_ORION="ferramenta_checkmate"
@@ -44111,7 +44111,7 @@ while true; do
             if verificar_docker_e_portainer_traefik && verificar_antes_se_tem_mongo; then
                 ## INICIO TOKEN
                 STACK_NAME="heyform${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_heyform "$opcao2"
                 else
                     APP_ORION="ferramenta_heyform"
@@ -44128,7 +44128,7 @@ while true; do
             if verificar_docker_e_portainer_traefik && verificar_antes_se_tem_mongo; then
                 ## INICIO TOKEN
                 STACK_NAME="wekan${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_wekan "$opcao2"
                 else
                     APP_ORION="ferramenta_wekan"
@@ -44145,7 +44145,7 @@ while true; do
             if verificar_docker_e_portainer_traefik && verificar_antes_se_tem_mongo; then
                 ## INICIO TOKEN
                 STACK_NAME="opensign${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_opensign "$opcao2"
                 else
                     APP_ORION="ferramenta_opensign"
@@ -44162,7 +44162,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="docmost${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_docmost "$opcao2"
                 else
                     APP_ORION="ferramenta_docmost"
@@ -44179,7 +44179,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="netbox${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_netbox "$opcao2"
                 else
                     APP_ORION="ferramenta_netbox"
@@ -44196,7 +44196,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="kafka${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_kafka "$opcao2"
                 else
                     APP_ORION="ferramenta_kafka"
@@ -44213,7 +44213,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="astracampaign${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_astracampaign "$opcao2"
                 else
                     APP_ORION="ferramenta_astracampaign"
@@ -44230,7 +44230,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="duplicati${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_duplicati "$opcao2"
                 else
                     APP_ORION="ferramenta_duplicati"
@@ -44247,7 +44247,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="pgbackweb${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_pgbackweb "$opcao2"
                 else
                     APP_ORION="ferramenta_pgbackweb"
@@ -44264,7 +44264,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="jitsi${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_jitsi "$opcao2"
                 else
                     APP_ORION="ferramenta_jitsi"
@@ -44281,7 +44281,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="code_server${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_code_server "$opcao2"
                 else
                     APP_ORION="ferramenta_code_server"
@@ -44298,7 +44298,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="papra${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_papra "$opcao2"
                 else
                     APP_ORION="ferramenta_papra"
@@ -44315,7 +44315,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="zerobyte${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_zerobyte "$opcao2"
                 else
                     APP_ORION="ferramenta_zerobyte"
@@ -44354,7 +44354,7 @@ while true; do
 
                 STACK_NAME="postgres${opcao2:+_$opcao2}"
 
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_postgres_setup "$opcao2"
                 else
                     APP_ORION="ferramenta_postgres_setup"
@@ -44376,7 +44376,7 @@ while true; do
 
                 STACK_NAME="mysql${opcao2:+_$opcao2}"
 
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_mysql_setup "$opcao2"
                 else
                     APP_ORION="ferramenta_mysql_setup"
@@ -44398,7 +44398,7 @@ while true; do
 
                 STACK_NAME="redis${opcao2:+_$opcao2}"
 
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_redis_setup "$opcao2"
                 else
                     APP_ORION="ferramenta_redis_setup"
@@ -44419,7 +44419,7 @@ while true; do
 
                 STACK_NAME="pgvector${opcao2:+_$opcao2}"
 
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_pgvector_setup "$opcao2"
                 else
                     APP_ORION="ferramenta_pgvector_setup"
@@ -44446,7 +44446,7 @@ while true; do
 
                 STACK_NAME="evolution_v1${opcao2:+_$opcao2}"
 
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_evolution_v1 "$opcao2"
                 else
                     APP_ORION="ferramenta_evolution_v1"
@@ -44468,7 +44468,7 @@ while true; do
 
                 STACK_NAME="evolution_v2${opcao2:+_$opcao2}"
 
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_evolution_v2 "opcao2"
                 else
                     APP_ORION="ferramenta_evolution_v2${opcao2:+_$opcao2}"
@@ -44490,7 +44490,7 @@ while true; do
 
                 STACK_NAME="evolution_lite${opcao2:+_$opcao2}"
 
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_evolution_lite "$opcao2"
                 else
                     APP_ORION="ferramenta_evolution_lite${opcao2:+_$opcao2}"
@@ -44512,7 +44512,7 @@ while true; do
 
                 STACK_NAME="transcrevezap${opcao2:+_$opcao2}"
 
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_transcrevezap "$opcao2"
                 else
                     APP_ORION="transcrevezap${opcao2:+_$opcao2}"
@@ -44533,7 +44533,7 @@ while true; do
 
                 STACK_NAME="n8n${opcao2:+_$opcao2}_mcp"
 
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     n8n.mcp "$opcao2"
                 else
                     APP_ORION="n8n${opcao2:+_$opcao2}_mcp"
@@ -44555,7 +44555,7 @@ while true; do
 
                 STACK_NAME="openwebui${opcao2:+_$opcao2}"
 
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_openwebui "$opcao2"
                 else
                     APP_ORION="openwebui${opcao2:+_$opcao2}"
@@ -44574,7 +44574,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="chatwoot_nestor${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_chatwoot_nestor "$opcao2"
                 else
                     APP_ORION="ferramenta_chatwoot_nestor"
@@ -44591,7 +44591,7 @@ while true; do
             if verificar_docker_e_portainer_traefik; then
                 ## INICIO TOKEN
                 STACK_NAME="n8n_quepasa${opcao2:+_$opcao2}"
-                if grep -q "Token: .\+" /root/dados_vps/dados_portainer; then
+                if grep -q "Token: .\+" /root/datos_vps/datos_portainer; then
                     ferramenta_n8n_quepasa "$opcao2"
                 else
                     APP_ORION="ferramenta_n8n_quepasa"
