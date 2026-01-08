@@ -11,14 +11,14 @@
   ansible.builtin.find:
     paths: /etc/apt/sources.list.d/
     patterns: "*docker*.list"
-  register: docker_repo_files
+  register: common_docker_repo_files
   when: ansible_facts['os_family'] == "Debian"
 
 - name: Eliminar archivos de repositorio de Docker conflictivos
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
-  loop: "{{ docker_repo_files.files | default([]) }}"
+  loop: "{{ common_docker_repo_files.files | default([]) }}"
   when: ansible_facts['os_family'] == "Debian"
 
 - name: Actualizar caché de APT e instalar paquetes base
