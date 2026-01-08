@@ -44,8 +44,7 @@ PIP_CMD="$VENV_DIR/bin/pip"
 log "Instalando Ansible y librerías necesarias dentro del entorno virtual..."
 # Instalamos 'ansible' (core + community), 'docker' (SDK para módulos) y 'requests'
 $PIP_CMD install --upgrade pip > /dev/null
-$PIP_CMD install ansible docker requests > /dev/null 2>&1 || error "Fallo al instalar librerías pip"
-
+$PIP_CMD install --force-reinstall ansible docker requests websocket-client jsondiff pyyaml
 success "Entorno Python listo (Ansible + Docker SDK instalados)."
 
 # 5. Ejecución del Playbook
