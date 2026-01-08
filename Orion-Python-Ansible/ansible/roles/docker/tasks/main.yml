@@ -36,7 +36,7 @@
   changed_when: true
 
 - name: Crear red interna 'OrionNet'
-  community.docker.docker_network:
-    name: OrionNet
-    driver: overlay
-    state: present
+  ansible.builtin.command: docker network create --driver=overlay OrionNet
+  register: docker_network_create
+  changed_when: docker_network_create.rc == 0
+  failed_when: docker_network_create.rc != 0 and "network with name OrionNet already exists" not in docker_network_create.stderr
