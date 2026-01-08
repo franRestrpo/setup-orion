@@ -26,5 +26,6 @@
           - "  - Git:            {{ common_installed_git_version | trim | default('No detectado') }}"
           - "  - Docker:         {{ docker_installed_version | trim | default('No detectado') }}"
           - "  - Docker Compose: {{ docker_installed_compose_version | trim | default('No detectado') }}"
+          - "  - Docker Swarm:   {{ docker_swarm_active_state | trim | default('Inactivo') }}"
           - ""
           - "======================================================="

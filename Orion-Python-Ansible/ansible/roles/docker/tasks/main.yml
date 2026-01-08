@@ -35,6 +35,16 @@
   when: docker_swarm_status.stdout != "active"
   changed_when: true
 
+- name: Verificar estado de Docker Swarm después de inicializar
+  ansible.builtin.command: docker info --format '{{ "{{" }}.Swarm.LocalNodeState{{ "}}" }}'
+  register: docker_swarm_status_final
+  changed_when: false
+  failed_when: false
+
+- name: Almacenar estado de Docker Swarm como fact
+  ansible.builtin.set_fact:
+    docker_swarm_active_state: "{{ docker_swarm_status_final.stdout }}"
+
 - name: Crear red interna 'OrionNet'
   ansible.builtin.command: docker network create --driver=overlay OrionNet
   register: docker_network_create
