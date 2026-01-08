@@ -7,10 +7,18 @@
         - "default.yml"
       skip: true
 
-- name: Eliminar repositorio de Docker conflictivo (si existe)
+- name: Buscar archivos de repositorio de Docker conflictivos
+  ansible.builtin.find:
+    paths: /etc/apt/sources.list.d/
+    patterns: "*docker*.list"
+  register: docker_repo_files
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Eliminar archivos de repositorio de Docker conflictivos
   ansible.builtin.file:
-    path: /etc/apt/sources.list.d/archive_uri-https_download_docker_com_linux_ubuntu-noble.list
+    path: "{{ item.path }}"
     state: absent
+  loop: "{{ docker_repo_files.files | default([]) }}"
   when: ansible_facts['os_family'] == "Debian"
 
 - name: Actualizar caché de APT e instalar paquetes base
