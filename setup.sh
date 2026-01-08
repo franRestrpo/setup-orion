@@ -45,6 +45,11 @@ log "Instalando Ansible y librerías necesarias dentro del entorno virtual..."
 # Instalamos 'ansible' (core + community), 'docker' (SDK para módulos) y 'requests'
 $PIP_CMD install --upgrade pip > /dev/null
 $PIP_CMD install --force-reinstall ansible docker requests websocket-client jsondiff pyyaml
+
+# Forzamos la reinstalación de requests y el SDK de docker para asegurar compatibilidad
+log "Forzando actualización de librerías críticas..."
+$PIP_CMD install --upgrade requests docker > /dev/null 2>&1
+
 success "Entorno Python listo (Ansible + Docker SDK instalados)."
 
 # 5. Ejecución del Playbook
