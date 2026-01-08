@@ -2424,20 +2424,20 @@ stack_editavel(){
         echo "3/10 - [ OFF ] - Erro ao instalar JQ Método 2/2"
     fi
 
-    ## Definindo o diretório do arquivo datos_portainer
-    arquivo="/root/datos_vps/datos_portainer"
+    ## Definindo o diretório do archivo datos_portainer
+    archivo="/root/datos_vps/datos_portainer"
 
-    ## Verifica se o arquivo existe
-    if [ ! -f "$arquivo" ]; then
-        echo "Arquivo não encontrado: $arquivo"
+    ## Verifica se o archivo existe
+    if [ ! -f "$archivo" ]; then
+        echo "Arquivo não encontrado: $archivo"
         sleep 2
 
-        ## Cria o arquivo caso não exista
+        ## Cria o archivo caso não exista
         criar_arquivo
     fi
 
     ## Remove o https:// caso existir
-    sed -i 's/Dominio do portainer: https:\/\/\(.*\)/Dominio do portainer: \1/' "$arquivo"
+    sed -i 's/Dominio do portainer: https:\/\/\(.*\)/Dominio do portainer: \1/' "$archivo"
 
     ## Pega o usuario do portainer
     USUARIO=$(grep "Usuario: " /root/datos_vps/datos_portainer | awk -F "Usuario: " '{print $2}')
@@ -2449,8 +2449,8 @@ stack_editavel(){
 
 
     ## Pega a senha do portainer
-    SENHA=$(grep "Senha: " /root/datos_vps/datos_portainer | awk -F "Senha: " '{print $2}')
-    esconder_senha "$SENHA"
+    PASSWORD=$(grep "Senha: " /root/datos_vps/datos_portainer | awk -F "Senha: " '{print $2}')
+    esconder_senha "$PASSWORD"
     if [ $? -eq 0 ]; then
         echo -e "5/10 - [ OK ] - Pegando a senha do portainer: $beige$SENHAOCULTA$reset"
     else
@@ -2469,22 +2469,22 @@ stack_editavel(){
     #TOKEN=$(grep "Token: " /root/datos_vps/datos_portainer | awk -F "Token: " '{print $2}')
     
     ## Pega um token do portainer
-    #TOKEN=$(curl -k -X POST -H "Content-Type: application/json" -d "{\"username\":\"$USUARIO\",\"password\":\"$SENHA\"}" https://$PORTAINER_URL/api/auth | jq -r .jwt)
+    #TOKEN=$(curl -k -X POST -H "Content-Type: application/json" -d "{\"username\":\"$USUARIO\",\"password\":\"$PASSWORD\"}" https://$PORTAINER_URL/api/auth | jq -r .jwt)
 
     TOKEN=""
-    Tentativa_atual=0
-    Maximo_de_tentativas=6
+    Intento_actual=0
+    Maximo_intentos=6
     
     while [ -z "$TOKEN" ] || [ "$TOKEN" == "null" ]; do
-        TOKEN=$(curl -k -s -X POST -H "Content-Type: application/json" -d "{\"username\":\"$USUARIO\",\"password\":\"$SENHA\"}" https://$PORTAINER_URL/api/auth | jq -r .jwt)
+        TOKEN=$(curl -k -s -X POST -H "Content-Type: application/json" -d "{\"username\":\"$USUARIO\",\"password\":\"$PASSWORD\"}" https://$PORTAINER_URL/api/auth | jq -r .jwt)
     
-        Tentativa_atual=$((Tentativa_atual + 1))
+        Intento_actual=$((Intento_actual + 1))
     
         ## Verifica se atingiu o número máximo de tentativas
-        if [ "$Tentativa_atual" -ge "$Maximo_de_tentativas" ]; then
+        if [ "$Intento_actual" -ge "$Maximo_intentos" ]; then
             clear
             erro_msg
-            echo "7/10 - [ OFF ] - Erro: Falha ao obter token após $Maximo_de_tentativas tentativas."
+            echo "7/10 - [ OFF ] - Erro: Falha ao obter token após $Maximo_intentos tentativas."
             echo "Verifique suas credenciais do Portainer para conseguirmos realizar o deploy."
             sleep 5
             criar_arquivo
@@ -2498,7 +2498,7 @@ stack_editavel(){
         fi
     
         ## Aguarda alguns segundos antes de tentar novamente
-        echo -e "Tentando gerar token do portainer. Tentativa atual $beige$Tentativa_atual/5$reset"
+        echo -e "Tentando gerar token do portainer. Tentativa atual $beige$Intento_actual/5$reset"
         sleep 5
     done
     
@@ -2516,8 +2516,8 @@ stack_editavel(){
     #    #exit 1
     #fi
 
-    ## Salva dados no arquivo do portainer
-    echo -e "[ PORTAINER ]\nDominio do portainer: $PORTAINER_URL\n\nUsuario: $USUARIO\n\nSenha: $SENHA\n\nToken: $TOKEN" > "/root/datos_vps/datos_portainer"
+    ## Salva dados no archivo do portainer
+    echo -e "[ PORTAINER ]\nDominio do portainer: $PORTAINER_URL\n\nUsuario: $USUARIO\n\nSenha: $PASSWORD\n\nToken: $TOKEN" > "/root/datos_vps/datos_portainer"
 
     ## Pegando o id do portainer
     ENDPOINT_ID=$(curl -k -s -X GET -H "Authorization: Bearer $TOKEN" https://$PORTAINER_URL/api/endpoints | jq -r '.[] | select(.Name == "primary") | .Id')
@@ -2546,7 +2546,7 @@ stack_editavel(){
     fi
 
     # Arquivo temporário para capturar a saída de erro e a resposta
-    erro_output=$(mktemp)
+    error_salida=$(mktemp)
     response_output=$(mktemp)
 
     ## Fazendo deploy da stack pelo portainer
@@ -2556,7 +2556,7 @@ stack_editavel(){
     -F "file=@$(pwd)/$STACK_NAME.yaml" \
     -F "SwarmID=$SWARM_ID" \
     -F "endpointId=$ENDPOINT_ID" \
-    "https://$PORTAINER_URL/api/stacks/create/swarm/file" 2> "$erro_output")
+    "https://$PORTAINER_URL/api/stacks/create/swarm/file" 2> "$error_salida")
 
     response_body=$(cat "$response_output")
 
@@ -2570,18 +2570,18 @@ stack_editavel(){
         fi
     else
         echo "10/10 - [ OFF ] - Erro ao efetuar deploy. Resposta HTTP: $http_code"
-        echo "Mensagem de erro: $(cat "$erro_output")"
+        echo "Mensagem de erro: $(cat "$error_salida")"
         echo "Detalhes: $(echo "$response_body" | jq .)"
     fi
 
     echo ""
 
     # Remove os arquivos temporários
-    rm "$erro_output"
+    rm "$error_salida"
     rm "$response_output"
 }
 
-## Função para verificar se o arquivo de dados do Portainer existe
+## Função para verificar se o archivo de dados do Portainer existe
 verificar_arquivo() {
     sudo apt install jq -y > /dev/null 2>&1
     if [ ! -f "/root/datos_vps/datos_portainer" ]; then
@@ -2593,14 +2593,14 @@ verificar_arquivo() {
 }
 
 
-## Função para criar o arquivo de dados do Portainer
+## Função para criar o archivo de dados do Portainer
 criar_arquivo() {
     if [ -f "/root/datos_vps/datos_portainer" ]; then
         rm "/root/datos_vps/datos_portainer"
         echo "Arquivo existente removido."
     fi
 
-    ## Caso não exista o arquivo ele vai pedir os dados para criar.
+    ## Caso não exista o archivo ele vai pedir os dados para criar.
     nome_credenciais
     echo -e "\e[97mPasso$amarillo 1/3\e[0m"
     #echo -e "\e[97mObs: Coloque o https:// antes do link do portainer\e[0m"
@@ -2613,21 +2613,21 @@ criar_arquivo() {
 
     echo -e "\e[97mPasso$amarillo 3/3\e[0m"
     echo -e "\e[97mObs: A Senha não aparecera ao digitar\e[0m"
-    read -s -p "Digite a Senha (ex: @Senha123_): " SENHA
+    read -s -p "Digite a Senha (ex: @Senha123_): " PASSWORD
     echo ""
 
-    verificar_token "$PORTAINER_URL" "$USUARIO" "$SENHA" true
+    verificar_token "$PORTAINER_URL" "$USUARIO" "$PASSWORD" true
 }
 
 
-## Função para verificar os campos do arquivo de dados do Portainer
+## Função para verificar os campos do archivo de dados do Portainer
 verificar_campos() {
     PORTAINER_URL=$(grep -oP '(?<=Dominio do portainer: ).*' /root/datos_vps/datos_portainer)
     USUARIO=$(grep -oP '(?<=Usuario: ).*' /root/datos_vps/datos_portainer)
-    SENHA=$(grep -oP '(?<=Senha: ).*' /root/datos_vps/datos_portainer)
+    PASSWORD=$(grep -oP '(?<=Senha: ).*' /root/datos_vps/datos_portainer)
 
     ## se por acaso não tiver login nem senha lá vem para ca
-    if [ -z "$USUARIO" ] || [ -z "$SENHA" ]; then
+    if [ -z "$USUARIO" ] || [ -z "$PASSWORD" ]; then
         
         nome_credenciais
         echo -e "\e[97mPasso$amarillo 1/3\e[0m"
@@ -2641,13 +2641,13 @@ verificar_campos() {
     
         echo -e "\e[97mPasso$amarillo 3/3\e[0m"
         echo -e "\e[97mObs: A Senha não aparecera ao digitar\e[0m"
-        read -s -p "Digite a Senha (ex: @Senha123_): " SENHA
+        read -s -p "Digite a Senha (ex: @Senha123_): " PASSWORD
         echo ""
 
-        ATUALIZAR="true" ## Verificar se já existe TOKEN no arquivo
-        verificar_token "$PORTAINER_URL" "$USUARIO" "$SENHA" true
-    ## Caso o usuario e senha estiver como "Precisa criar dentro do portainer" como o arquivo oficial vem para ca
-    elif [ "$USUARIO" == "Precisa criar dentro do portainer" ] || [ "$SENHA" == "Precisa criar dentro do portainer" ]; then
+        ATUALIZAR="true" ## Verificar se já existe TOKEN no archivo
+        verificar_token "$PORTAINER_URL" "$USUARIO" "$PASSWORD" true
+    ## Caso o usuario e senha estiver como "Precisa criar dentro do portainer" como o archivo oficial vem para ca
+    elif [ "$USUARIO" == "Precisa criar dentro do portainer" ] || [ "$PASSWORD" == "Precisa criar dentro do portainer" ]; then
         
         nome_credenciais
         echo -e "\e[97mPasso$amarillo 1/3\e[0m"
@@ -2666,7 +2666,7 @@ verificar_campos() {
 
         verificar_token "$PORTAINER_URL" "$NOVO_USUARIO" "$NOVA_SENHA" true
     else
-        verificar_token "$PORTAINER_URL" "$USUARIO" "$SENHA" false
+        verificar_token "$PORTAINER_URL" "$USUARIO" "$PASSWORD" false
     fi
 }
 
@@ -2674,20 +2674,20 @@ verificar_campos() {
 verificar_token() {
     PORTAINER_URL="$1"
     USUARIO="$2"
-    SENHA="$3"
+    PASSWORD="$3"
     ATUALIZAR="$4"
-    TENTATIVAS=0
-    MAX_TENTATIVAS=5
+    INTENTOS=0
+    MAX_INTENTOS=5
 
-    while [ $TENTATIVAS -lt $MAX_TENTATIVAS ]; do
-        TENTATIVAS=$((TENTATIVAS+1))
+    while [ $INTENTOS -lt $MAX_INTENTOS ]; do
+        INTENTOS=$((INTENTOS+1))
 
         #echo -e "Dados a serem testados:"
         #echo "Link do Portainer: $PORTAINER_URL"
         #echo "Usuário: $USUARIO"
-        #echo "Senha: $SENHA"
+        #echo "Senha: $PASSWORD"
 
-        RESPONSE=$(curl -s -w "\n%{http_code}" -k -X POST -H "Content-Type: application/json" -d "{\"username\":\"$USUARIO\",\"password\":\"$SENHA\"}" "https://$PORTAINER_URL/api/auth")
+        RESPONSE=$(curl -s -w "\n%{http_code}" -k -X POST -H "Content-Type: application/json" -d "{\"username\":\"$USUARIO\",\"password\":\"$PASSWORD\"}" "https://$PORTAINER_URL/api/auth")
         TOKEN=$(echo "$RESPONSE" | sed '$d' | jq -r '.jwt')
         HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
 
@@ -2701,13 +2701,13 @@ verificar_token() {
 
             break
         else
-            if [ $TENTATIVAS -gt 1 ]; then
+            if [ $INTENTOS -gt 1 ]; then
                 clear
                 erro_msg
                 echo ""
                 echo ""
                 echo "              Não foi possivel autenticar suas credenciais. Por favor tente novamente"
-                echo "                                           Tentativa: $TENTATIVAS/$MAX_TENTATIVAS"
+                echo "                                           Tentativa: $INTENTOS/$MAX_INTENTOS"
     
                 sleep 3
 
@@ -2716,7 +2716,7 @@ verificar_token() {
                 nome_credenciais
             fi
 
-            if [ $TENTATIVAS -lt $MAX_TENTATIVAS ]; then
+            if [ $INTENTOS -lt $MAX_INTENTOS ]; then
                 
                 nome_credenciais
                 echo -e "\e[97mPasso$amarillo 1/3\e[0m"
@@ -2730,7 +2730,7 @@ verificar_token() {
             
                 echo -e "\e[97mPasso$amarillo 3/3\e[0m"
                 echo -e "\e[97mObs: A Senha não aparecera ao digitar\e[0m"
-                read -s -p "Digite a Senha (ex: @Senha123_): " SENHA
+                read -s -p "Digite a Senha (ex: @Senha123_): " PASSWORD
                 echo ""
                 ATUALIZAR="true"
             else
@@ -2739,7 +2739,7 @@ verificar_token() {
 
                 echo ""
                 echo ""
-                echo "                         Você atingiu o limite maximo de tentativas ($TENTATIVAS/$MAX_TENTATIVAS)."
+                echo "                         Você atingiu o limite maximo de tentativas ($INTENTOS/$MAX_INTENTOS)."
                 echo "                         Tente novamente quando lembrar da sua credencial!"
                 echo 5
                 clear
@@ -2749,9 +2749,9 @@ verificar_token() {
     done
 }
 
-## Função para atualizar o arquivo de dados do Portainer com o novo usuário e senha
+## Função para atualizar o archivo de dados do Portainer com o novo usuário e senha
 atualizar_arquivo() {
-    echo -e "[ PORTAINER ]\nDominio do portainer: $PORTAINER_URL\n\nUsuario: $USUARIO\n\nSenha: $SENHA\n\nToken: $TOKEN" > "/root/datos_vps/datos_portainer"
+    echo -e "[ PORTAINER ]\nDominio do portainer: $PORTAINER_URL\n\nUsuario: $USUARIO\n\nSenha: $PASSWORD\n\nToken: $TOKEN" > "/root/datos_vps/datos_portainer"
     echo -e "\nArquivo de dados do Portainer atualizado com sucesso!"
 }
 
@@ -2760,14 +2760,14 @@ telemetria() {
     read -r ip _ <<< "$(hostname -I)"
 
     ip="$ip"
-    ferramenta="$1"
+    Herramientas="$1"
     status="$2"
 
     curl --max-time 30 -X POST 'https://telemetria.oriondesign.art.br/api/telemetria' \
     -H "Content-Type: application/json" \
     -d '{
       "ip": "'"$ip"'",
-      "ferramenta": "'"$ferramenta"'",
+      "Herramientas": "'"$Herramientas"'",
       "status": "'"$status"'"
     }' > /dev/null 2>&1
 }
@@ -3785,7 +3785,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_traefik_e_portainer
 
         ## Mostra mensagem para preencher informações
@@ -3800,7 +3800,7 @@ echo -e "\e[97m• INICIANDO A INSTALAÇÃO DO TRAEFIK \e[33m[1/9]\e[0m"
 echo ""
 sleep 1
 
-## Neste passo vamos estar salvando os dados preenchidos anteriormente para que o instalador possa usar posteriormente na instalação de qualquer ferramenta.
+## Neste passo vamos estar salvando os dados preenchidos anteriormente para que o instalador possa usar posteriormente na instalação de qualquer Herramientas.
 
 ## Garante que o usuario esteja no /root/
 cd
@@ -3818,7 +3818,7 @@ fi
 ## Abre a pasta datos_vps
 cd datos_vps
 
-## Cria um arquivo chamado "datos_vps" com: "nome do servidor", "nome da rede interna", "email", "link do portainer"
+## Cria um archivo chamado "datos_vps" com: "nome do servidor", "nome da rede interna", "email", "link do portainer"
 cat > datos_vps << EOL
 [DADOS DA VPS]
 
@@ -5621,7 +5621,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_chatwoot
 
         ## Mostra mensagem para preencher informações
@@ -6191,7 +6191,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_evolution
 
         ## Mostra mensagem para preencher informações
@@ -6642,7 +6642,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_evolution_lite
 
         ## Mostra mensagem para preencher informações
@@ -7050,7 +7050,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_evolution
 
         ## Mostra mensagem para preencher informações
@@ -7136,7 +7136,7 @@ services:
 
     ## 🗄️ Ativar Banco de Dados MongoDB
       - DATABASE_ENABLED=false ## Colocar true se quiser usar | Necessário instalar MongoDB antes
-      - DATABASE_CONNECTION_URI=mongodb://USUARIO:SENHA@IP_VPS:27017/?authSource=admin&readPreference=primary&ssl=false&directConnection=true ## Colocar a URL do MongoDB
+      - DATABASE_CONNECTION_URI=mongodb://USUARIO:PASSWORD@IP_VPS:27017/?authSource=admin&readPreference=primary&ssl=false&directConnection=true ## Colocar a URL do MongoDB
       - DATABASE_CONNECTION_DB_PREFIX_NAME=evolution${1:+_$1}
       - DATABASE_SAVE_DATA_INSTANCE=true
       - DATABASE_SAVE_DATA_NEW_MESSAGE=true
@@ -7383,7 +7383,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_evolution
 
         ## Mostra mensagem para preencher informações
@@ -7872,7 +7872,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_minio
 
         ## Mostra mensagem para preencher informações
@@ -8174,7 +8174,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_typebot
 
         ## Mostra mensagem para preencher informações
@@ -8610,7 +8610,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_n8n
 
         ## Mostra mensagem para preencher informações
@@ -9110,7 +9110,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o Flowise (ex: flowise.oriondesign.art.br): \e[0m" && read -r url_flowise
     echo ""
@@ -9150,7 +9150,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_flowise
 
         ## Mostra mensagem para preencher informações
@@ -9375,17 +9375,17 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/3\e[0m"
     echo -en "\e[33mDigite o dominio para o PgAdmin 4 (ex: pgadmin.oriondesign.art.br): \e[0m" && read -r url_PgAdmin_4
     echo ""
     
-    ##Pergunta o Email para a ferramenta
+    ##Pergunta o Email para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/3\e[0m"
     echo -en "\e[33mDigite um email para o PgAdmin 4 (ex: contato@oriondesign.art.br): \e[0m" && read -r user_PgAdmin_4
     echo ""
     
-    ##Pergunta a Senha para a ferramenta
+    ##Pergunta a Senha para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/3\e[0m"
     echo -e "$amarillo--> Minimo 8 caracteres. Use Letras MAIUSCULAS e minusculas, numero e um caractere especial @ ou _"
     echo -e "$amarillo--> Evite os caracteres especiais: \!#$"
@@ -9434,7 +9434,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_minio
 
         ## Mostra mensagem para preencher informações
@@ -9607,22 +9607,22 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/4\e[0m"
     echo -en "\e[33mDigite o dominio para o Nocobase (ex: nocobase.oriondesign.art.br): \e[0m" && read -r url_nocobase
     echo ""
     
-    ##Pergunta o Email para a ferramenta
+    ##Pergunta o Email para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/4\e[0m"
     echo -en "\e[33mDigite um email para o Nocobase (ex: contato@oriondesign.art.br): \e[0m" && read -r mail_nocobase
     echo ""
     
-    ##Pergunta um Usuario para a ferramenta
+    ##Pergunta um Usuario para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/4\e[0m"
     echo -en "\e[33mDigite um nome de usuario para o Nocobase (ex: OrionDesign): \e[0m" && read -r user_nocobase
     echo ""
     
-    ##Pergunta a Senha para a ferramenta
+    ##Pergunta a Senha para a Herramientas
     echo -e "\e[97mPasso$amarillo 4/4\e[0m"
     echo -e "$amarillo--> Minimo 8 caracteres. Use Letras MAIUSCULAS e minusculas, numero e um caractere especial @ ou _"
     echo -e "$amarillo--> Evite os caracteres especiais: \!#$"
@@ -9675,7 +9675,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_minio
 
         ## Mostra mensagem para preencher informações
@@ -9892,7 +9892,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o Botpress (ex: botpress.oriondesign.art.br): \e[0m" && read -r url_botpress
     echo ""
@@ -9931,7 +9931,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_botpress
 
         ## Mostra mensagem para preencher informações
@@ -10170,7 +10170,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ## Pergunta o Dominio para a ferramenta
+    ## Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/2\e[0m"
     echo -en "\e[33mDigite o dominio para o Wordpress (ex: oriondesign.art.br ou loja.oriondesign.art.br): \e[0m" && read -r url_wordpress
     echo ""
@@ -10220,7 +10220,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_minio
 
         ## Mostra mensagem para preencher informações
@@ -10435,26 +10435,26 @@ if [ ! -d "$(dirname "$caminho_wp_config")" ]; then
     exit 1
 fi
 
-## Copiando arquivo php.ini-production para php.ini
+## Copiando archivo php.ini-production para php.ini
 if [ ! -f "$caminho_php_ini_prod" ]; then
     echo "AVISO: Arquivo php.ini-production não encontrado. Tentando criar php.ini do zero..."
     touch "$caminho_php_ini"
 else
     cp "$caminho_php_ini_prod" "$caminho_php_ini"
 fi
-verificar_comando "1/8" "Copiando arquivo php.ini" $? || exit 1
+verificar_comando "1/8" "Copiando archivo php.ini" $? || exit 1
 
 ## Modificando configurações do PHP.INI
 sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 1024M/" "$caminho_php_ini" 2>/dev/null
 if [ $? -ne 0 ]; then
-    # Se a linha não existir, adiciona ao final do arquivo
+    # Se a linha não existir, adiciona ao final do archivo
     echo "upload_max_filesize = 1024M" >> "$caminho_php_ini"
 fi
 verificar_comando "2/8" "Modificando upload_max_filesize para 1024M" $?
 
 sed -i "s/^post_max_size =.*/post_max_size = 1024M/" "$caminho_php_ini" 2>/dev/null
 if [ $? -ne 0 ]; then
-    # Se a linha não existir, adiciona ao final do arquivo
+    # Se a linha não existir, adiciona ao final do archivo
     echo "post_max_size = 1024M" >> "$caminho_php_ini"
 fi
 verificar_comando "3/8" "Modificando post_max_size para 1024M" $?
@@ -10476,7 +10476,7 @@ if [ ! -f "$caminho_wp_config" ]; then
     echo "ERRO: Arquivo wp-config.php não encontrado: $caminho_wp_config"
     exit 1
 fi
-verificar_comando "6/8" "Verificando arquivo wp-config.php" 0
+verificar_comando "6/8" "Verificando archivo wp-config.php" 0
 
 ## Adicionando configurações do Redis no wp-config.php
 sed -i "/\/\* Add any custom values between this line and the \"stop editing\" line. \*\//i\\
@@ -10580,34 +10580,34 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/6\e[0m"
     echo -en "\e[33mDigite o dominio para o Baserow (ex: baserow.oriondesign.art.br): \e[0m" && read -r url_baserow
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/6\e[0m"
     echo -en "\e[33mDigite o Email para SMTP (ex: contato@oriondesign.art.br): \e[0m" && read -r mail_baserow
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/6\e[0m"
     echo -en "\e[33mDigite o Usuário para SMTP (ex: oriondesign ou contato@oriondesign.art.br): \e[0m" && read -r user_baserow
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 4/6\e[0m"
     echo -e "$amarillo--> Sem caracteres especiais: \!#$ | Se estiver usando gmail use a senha de app"
     echo -en "\e[33mDigite a Senha SMTP do Email (ex: @Senha123_): \e[0m" && read -r pass_baserow
     echo ""
 
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 5/6\e[0m"
     echo -en "\e[33mDigite o Host SMTP do Email (ex: smtp.hostinger.com): \e[0m" && read -r host_baserow
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 6/6\e[0m"
     echo -en "\e[33mDigite a Porta SMTP do Email (ex: 465): \e[0m" && read -r porta_baserow
     echo ""
@@ -10674,7 +10674,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_baserow
 
         ## Mostra mensagem para preencher informações
@@ -10966,7 +10966,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_mongodb
 
         ## Mostra mensagem para preencher informações
@@ -11202,7 +11202,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_rabbitmq
 
         ## Mostra mensagem para preencher informações
@@ -11431,7 +11431,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_mongodb
 
         ## Mostra mensagem para preencher informações
@@ -11605,7 +11605,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ## Pergunta o Dominio da ferramenta
+    ## Pergunta o Dominio da Herramientas
     echo -e "\e[97mPasso$amarillo 1/6\e[0m"
     echo -en "\e[33mDigite o dominio para o Cal (ex: calcom.oriondesign.art.br): \e[0m" && read -r url_calcom
     echo ""
@@ -11691,7 +11691,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_calcom
 
         ## Mostra mensagem para preencher informações
@@ -11916,7 +11916,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ## Pergunta o Dominio da ferramenta
+    ## Pergunta o Dominio da Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o Dominio para o Mautic (ex: mautic.oriondesign.art.br): \e[0m" && read -r url_mautic
     echo ""
@@ -11955,7 +11955,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_mautic
 
         ## Mostra mensagem para preencher informações
@@ -12273,7 +12273,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ## Pergunta o Dominio da ferramenta
+    ## Pergunta o Dominio da Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o Appsmith (ex: appsmith.oriondesign.art.br): \e[0m" && read -r url_appsmith
     echo ""
@@ -12312,7 +12312,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_appsmith
 
         ## Mostra mensagem para preencher informações
@@ -12495,7 +12495,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ## Pergunta o Dominio da ferramenta
+    ## Pergunta o Dominio da Herramientas
     read -r ip _ <<<$(hostname -I)
     echo -e "\e[97mPasso$amarillo 1/2\e[0m"
     echo -en "\e[33mDigite dominio para o Qdrant (ex: qdrant.oriondesign.art.br): \e[0m" && read -r url_qdrant
@@ -12550,7 +12550,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_qdrant
 
         ## Mostra mensagem para preencher informações
@@ -12572,7 +12572,7 @@ echo -e "\e[97m• INSTALANDO QDRANT \e[33m[2/3]\e[0m"
 echo ""
 sleep 1
 
-## Criando o arquivo qdrant.yaml
+## Criando o archivo qdrant.yaml
 suffix="${1:+_$1}"
 filename="qdrant${suffix}.yaml"
 stack_name="${stack_name:-${filename%.yaml}}"
@@ -12809,7 +12809,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos    
 while true; do
 
-    ## Pergunta o Dominio da ferramenta
+    ## Pergunta o Dominio da Herramientas
     echo -e "\e[97mPasso$amarillo 1/3\e[0m"
     echo -en "\e[33mDigite o Dominio para o WoofedCRM (ex: woofedcrm.oriondesign.art.br): \e[0m" && read -r url_woofed
     echo ""
@@ -12868,7 +12868,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_woofedcrm
 
         ## Mostra mensagem para preencher informações
@@ -12913,13 +12913,13 @@ sleep 1
 ## Criando uma Encryption Key Aleatória
 encryption_key_woofed=$(openssl rand -hex 32)
 
-# Verifica se o arquivo evolution.yaml existe
+# Verifica se o archivo evolution.yaml existe
 if [ -f "/root/evolution_v1.yaml" ]; then
-    # Extrai os valores do arquivo evolution.yaml e formata no estilo desejado
+    # Extrai os valores do archivo evolution.yaml e formata no estilo desejado
     EVOLUTION_API_ENDPOINT="- EVOLUTION_API_ENDPOINT=$(grep -oP '(?<=- SERVER_URL=)[^#]*' /root/evolution.yaml | sed 's/ //g')"
     EVOLUTION_API_ENDPOINT_TOKEN="- EVOLUTION_API_ENDPOINT_TOKEN=$(grep -oP '(?<=- AUTHENTICATION_API_KEY=)[^#]*' /root/evolution.yaml | sed 's/ //g')"
 else
-    # Define os valores padrão se o arquivo não existir
+    # Define os valores padrão se o archivo não existir
     EVOLUTION_API_ENDPOINT="#- EVOLUTION_API_ENDPOINT="
     EVOLUTION_API_ENDPOINT_TOKEN="#- EVOLUTION_API_ENDPOINT_TOKEN="
 fi
@@ -13341,7 +13341,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ## Pergunta o Dominio da ferramenta
+    ## Pergunta o Dominio da Herramientas
     echo -e "\e[97mPasso$amarillo 1/6\e[0m"
     echo -en "\e[33mDigite o Dominio para o Formbricks (ex: formbricks.oriondesign.art.br): \e[0m" && read -r url_formbricks
     echo ""
@@ -13433,7 +13433,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_formbricks
 
         ## Mostra mensagem para preencher informações
@@ -13753,7 +13753,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o NocoDB (ex: nocodb.oriondesign.art.br): \e[0m" && read -r url_nocodb
     echo ""
@@ -13792,7 +13792,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_nocodb
 
         ## Mostra mensagem para preencher informações
@@ -14042,7 +14042,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o Langfuse (ex: langfuse.oriondesign.art.br): \e[0m" && read -r url_langfuse
     echo ""
@@ -14099,7 +14099,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_langfuse
 
         ## Mostra mensagem para preencher informações
@@ -14480,7 +14480,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o Metabase (ex: metabase.oriondesign.art.br): \e[0m" && read -r url_metabase
     echo ""
@@ -14519,7 +14519,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_metabase
 
         ## Mostra mensagem para preencher informações
@@ -14727,12 +14727,12 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/2\e[0m"
     echo -en "\e[33mDigite o dominio para o Odoo (ex: odoo.oriondesign.art.br): \e[0m" && read -r url_odoo
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/2\e[0m"
     echo -e "$amarillo--> 1 = 19.0"
     echo -e "$amarillo--> 2 = 18.0"
@@ -14791,7 +14791,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_odoo
 
         ## Mostra mensagem para preencher informações
@@ -15121,7 +15121,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_chatwoot_nestor
 
         ## Mostra mensagem para preencher informações
@@ -15619,7 +15619,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_unoapi
 
         ## Mostra mensagem para preencher informações
@@ -15997,7 +15997,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_n8n_quepasa
 
         ## Mostra mensagem para preencher informações
@@ -16506,7 +16506,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o Quepasa (ex: quepasa.oriondesign.art.br): \e[0m" && read -r url_quepasa
     echo ""
@@ -16545,7 +16545,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_minio
 
         ## Mostra mensagem para preencher informações
@@ -16805,12 +16805,12 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/6\e[0m"
     echo -en "\e[33mDigite o dominio para o Docuseal (ex: docuseal.oriondesign.art.br): \e[0m" && read -r url_docuseal
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/6\e[0m"
     echo -en "\e[33mDigite a Email SMTP (ex: contato@oriondesign.art.br): \e[0m" && read -r email_smtp_docuseal
     echo ""
@@ -16821,18 +16821,18 @@ while true; do
     echo -en "\e[33mDigite o Usuário para SMTP (ex: oriondesign ou contato@oriondesign.art.br): \e[0m" && read -r user_smtp_docuseal
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 4/6\e[0m"
     echo -e "$amarillo--> Sem caracteres especiais: \!#$ | Se estiver usando gmail use a senha de app"
     echo -en "\e[33mDigite a Senha SMTP (ex: @Senha123_): \e[0m" && read -r senha_smtp_docuseal
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 5/6\e[0m"
     echo -en "\e[33mDigite o Host SMTP (ex: smtp.hostinger.com): \e[0m" && read -r host_smtp_docuseal
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 6/6\e[0m"
     echo -en "\e[33mDigite a Porta SMTP (ex: 465): \e[0m" && read -r porta_smtp_docuseal
     echo ""
@@ -16891,7 +16891,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_docuseal
 
         ## Mostra mensagem para preencher informações
@@ -17176,7 +17176,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_monitor
 
         ## Mostra mensagem para preencher informações
@@ -17219,7 +17219,7 @@ cd
 
 cd
 
-## Criando arquivo datasource
+## Criando archivo datasource
 cat > datasource.yml <<EOL
 apiVersion: 1
 datasources:
@@ -17264,7 +17264,7 @@ fi
 
 cd
 
-## Criando arquivo prometheus yml
+## Criando archivo prometheus yml
 cat > prometheus.yml <<EOL
 global:
   scrape_interval: 15s
@@ -17289,17 +17289,17 @@ scrape_configs:
 
 EOL
 if [ $? -eq 0 ]; then
-    echo "5/6 - [ OK ] - Criando arquivo prometheus.yml"
+    echo "5/6 - [ OK ] - Criando archivo prometheus.yml"
 else
-    echo "5/6 - [ OFF ] - Criando arquivo prometheus.yml"
+    echo "5/6 - [ OFF ] - Criando archivo prometheus.yml"
     echo "Não foi possivel criar o prometheus"
 fi
 
 mv /root/prometheus.yml /opt/monitor-orion/prometheus/
 if [ $? -eq 0 ]; then
-    echo "6/6 - [ OK ] - Movendo arquivo prometheus.yml para /opt/monitor-orion/prometheus/"
+    echo "6/6 - [ OK ] - Movendo archivo prometheus.yml para /opt/monitor-orion/prometheus/"
 else
-    echo "6/6 - [ OFF ] - Movendo arquivo prometheus.yml para /opt/monitor-orion/prometheus/"
+    echo "6/6 - [ OFF ] - Movendo archivo prometheus.yml para /opt/monitor-orion/prometheus/"
     echo "Não foi possivel copiar o datasource para o diretório opt"
 fi
 
@@ -17640,7 +17640,7 @@ while true; do
     #echo -e "\e[33mDominio do Qdrant:\e[97m $url_quedrant\e[0m"
     #echo ""
 
-    ## Informação sobre a versão da ferramenta
+    ## Informação sobre a versão da Herramientas
     #echo -e "\e[33mApi Key Qdrant:\e[97m $apikey_qdrant\e[0m"
     #echo ""    
 
@@ -17685,7 +17685,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_dify
 
         ## Mostra mensagem para preencher informações
@@ -18733,12 +18733,12 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/2\e[0m"
     echo -en "\e[33mDigite o dominio para o WebUI Ollama (ex: ollama.oriondesign.art.br): \e[0m" && read -r url_ollama
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/2\e[0m"
     echo -en "\e[33mDigite o dominio para a API Ollama (ex: apiollama.oriondesign.art.br): \e[0m" && read -r url_apiollama
     echo ""
@@ -18781,7 +18781,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_ollama
 
         ## Mostra mensagem para preencher informações
@@ -18993,17 +18993,17 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/3\e[0m"
     echo -en "\e[33mDigite o dominio para o Affine (ex: affine.oriondesign.art.br): \e[0m" && read -r url_affine
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/3\e[0m"
     echo -en "\e[33mDigite o Email de Admin (ex: contato@oriondesign.art.br): \e[0m" && read -r email_affine
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/3\e[0m"
     echo -e "$amarillo--> Sem caracteres especiais: \!#$"
     echo -en "\e[33mDigite a Senha de Admin (ex: @Senha123_): \e[0m" && read -r senha_affine
@@ -19051,7 +19051,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_affine
 
         ## Mostra mensagem para preencher informações
@@ -19382,39 +19382,39 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/7\e[0m"
     echo -en "\e[33mDigite o dominio para o Directus (ex: directus.oriondesign.art.br): \e[0m" && read -r url_directus
     echo ""
 
-     ##Pergunta o Dominio para a ferramenta
+     ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/7\e[0m"
     echo -en "\e[33mDigite a Email de Admin (ex: contato@oriondesign.art.br): \e[0m" && read -r email_directus
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/7\e[0m"
     echo -e "$amarillo--> Sem caracteres especiais: \!#$"
     echo -en "\e[33mDigite a Senha para o Admin (ex: @Senha123_): \e[0m" && read -r senha_directus
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 4/7\e[0m"
     echo -en "\e[33mDigite a Email SMTP (ex: contato@oriondesign.art.br): \e[0m" && read -r email_smtp_directus
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 5/7\e[0m"
     echo -e "$amarillo--> Sem caracteres especiais: \!#$ | Se estiver usando gmail use a senha de app"
     echo -en "\e[33mDigite a Senha SMTP (ex: @Senha123_): \e[0m" && read -r senha_smtp_directus
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 6/7\e[0m"
     echo -en "\e[33mDigite o Host SMTP (ex: smtp.hostinger.com): \e[0m" && read -r host_smtp_directus
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 7/7\e[0m"
     echo -en "\e[33mDigite a Porta SMTP (ex: 465): \e[0m" && read -r porta_smtp_directus
     echo ""
@@ -19484,7 +19484,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_directus
 
         ## Mostra mensagem para preencher informações
@@ -19772,7 +19772,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ## Pergunta o Dominio da ferramenta
+    ## Pergunta o Dominio da Herramientas
     echo -e "\e[97mPasso$amarillo 1/6\e[0m"
     echo -en "\e[33mDigite o Dominio para o VaultWarden (ex: vaultwarden.oriondesign.art.br): \e[0m" && read -r url_vaultwarden
     echo ""
@@ -19864,7 +19864,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_vaultwarden
 
         ## Mostra mensagem para preencher informações
@@ -20097,17 +20097,17 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/3\e[0m"
     echo -en "\e[33mDigite o dominio para o NextCloud (ex: nextcloud.oriondesign.art.br): \e[0m" && read -r url_nextcloud
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/3\e[0m"
     echo -en "\e[33mDigite o Usuario para o NextCloud (ex: orion): \e[0m" && read -r user_nextcloud
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/3\e[0m"
     echo -e "$amarillo--> Minimo 8 caracteres. Use Letras MAIUSCULAS e minusculas, numero e um caractere especial @ ou _"
     echo -en "\e[33mDigite o Senha o Usuario (ex: @Senha123_): \e[0m" && read -r pass_nextcloud
@@ -20157,7 +20157,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_minio
 
         ## Mostra mensagem para preencher informações
@@ -20354,7 +20354,7 @@ telemetria NextCloud finalizado
 
 cd datos_vps
 
-# Caminho do arquivo onde a substituição será feita
+# Caminho do archivo onde a substituição será feita
 wait_30_sec
 arquivo_next_cloud="/var/lib/docker/volumes/nextcloud${1:+_$1}_data/_data/config/config.php"
 
@@ -20435,7 +20435,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o Strapi (ex: strapi.oriondesign.art.br): \e[0m" && read -r url_strapi
     echo ""
@@ -20474,7 +20474,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_strapi
 
         ## Mostra mensagem para preencher informações
@@ -20702,12 +20702,12 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/2\e[0m"
     echo -en "\e[33mDigite o dominio para o PhpMyAdmin (ex: phpmyadmin.oriondesign.art.br): \e[0m" && read -r url_phpmyadmin
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/2\e[0m"
     echo -en "\e[33mDigite o Host MySQL (ex: mysql ou 1.111.111.11:3306): \e[0m" && read -r host_phpmyadmin
     echo ""
@@ -20719,12 +20719,12 @@ while true; do
       HOST_MYSQL_PMA=$host_phpmyadmin
     fi
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     #echo -e "\e[97mPasso$amarillo 4/4\e[0m"
     #echo -en "\e[33mDigite o Usuario MySQL  (ex: oriondesign): \e[0m" && read -r user_phpmyadmin
     #echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     #echo -e "\e[97mPasso$amarillo 4/4\e[0m"
     #echo -e "$amarillo--> Sem caracteres especiais: \!#$"
     #echo -en "\e[33mDigite a Senha MySQL (ex: @Senha123_): \e[0m" && read -r pass_phpmyadmin
@@ -20776,7 +20776,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_phpmyadmin
 
         ## Mostra mensagem para preencher informações
@@ -21061,7 +21061,7 @@ while true; do
     echo -en "\e[33mDigite o Usuario para o Supabase (ex: OrionDesign): \e[0m" && read -r user_supabase
     echo ""
 
-    ##Pergunta a versão da ferramenta
+    ##Pergunta a versão da Herramientas
     echo -e "\e[97mPasso$amarillo 3/3\e[0m"
     echo -e "$amarillo--> Sem NENHUM caracteres especiais, tais como: @\!#$ entre outros"
     echo -en "\e[33mDigite a Senha do usuario para o Supabase (ex: Senha123): \e[0m" && read -r pass_supabase
@@ -21127,7 +21127,7 @@ while true; do
     echo -e "\e[33mUsuario:\e[97m $user_supabase\e[0m"
     echo ""
 
-    ## Informação sobre a versão da ferramenta
+    ## Informação sobre a versão da Herramientas
     echo -e "\e[33mSenha:\e[97m $pass_supabase\e[0m"
     echo ""    
 
@@ -21188,7 +21188,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_supabase
 
         ## Mostra mensagem para preencher informações
@@ -22341,7 +22341,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_ntfy
 
         ## Mostra mensagem para preencher informações
@@ -22662,7 +22662,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_lowcoder
 
         ## Mostra mensagem para preencher informações
@@ -23006,13 +23006,13 @@ while true; do
     echo -en "\e[33mDigite o Dominio para LangFlow (ex: langflow.oriondesign.art.br): \e[0m" && read -r url_langflow
     echo ""
 
-    ##Pergunta o Usuario para a ferramenta
+    ##Pergunta o Usuario para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/3\e[0m"
     echo -e "$amarillo--> Minimo 5 caracteres. Evite os caracteres especiais: \!#$ e/ou espaço"
     echo -en "\e[33mDigite um usuario para o LangFlow (ex: admin): \e[0m" && read -r user_langflow
     echo ""
     
-    ##Pergunta a Senha para a ferramenta
+    ##Pergunta a Senha para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/3\e[0m"
     echo -e "$amarillo--> Evite os caracteres especiais: \!#$"
     echo -en "\e[33mDigite uma senha para o usuario do LangFlow (ex: @Senha123_): \e[0m" && read -r pass_langflow
@@ -23060,7 +23060,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_langflow
 
         ## Mostra mensagem para preencher informações
@@ -23331,7 +23331,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o OpenProject (ex: openproject.oriondesign.art.br): \e[0m" && read -r url_openproject
     echo ""
@@ -23370,7 +23370,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_minio
 
         ## Mostra mensagem para preencher informações
@@ -23660,7 +23660,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos    
 while true; do
 
-    ## Pergunta o Dominio da ferramenta
+    ## Pergunta o Dominio da Herramientas
     echo -e "\e[97mPasso$amarillo 1/4\e[0m"
     echo -en "\e[33mDigite o Dominio para o Zep (ex: zep.oriondesign.art.br): \e[0m" && read -r url_zep
     echo ""
@@ -23734,7 +23734,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_zep
 
         ## Mostra mensagem para preencher informações
@@ -23997,12 +23997,12 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ## Pergunta o Dominio da ferramenta
+    ## Pergunta o Dominio da Herramientas
     echo -e "\e[97mPasso$amarillo 1/10\e[0m"
     echo -en "\e[33mDigite o Dominio para o HumHub (ex: humhub.oriondesign.art.br): \e[0m" && read -r url_humhub
     echo ""
 
-    ## Pergunta o usuario da ferramenta
+    ## Pergunta o usuario da Herramientas
     echo -e "\e[97mPasso$amarillo 2/10\e[0m"
     echo -e "$amarillo--> AutoConfig é uma função que pula as etapas de configurações pós instalação"
     echo -en "\e[33mUsar o AutoConfig do HumHub (exemplo: 0 para não ou 1 para sim): \e[0m" && read -r autoconfig_humhub_valor
@@ -24019,18 +24019,18 @@ while true; do
       autoconfig_humhub="#- HUMHUB_AUTO_INSTALL=0"
     fi
 
-    ## Pergunta o usuario da ferramenta
+    ## Pergunta o usuario da Herramientas
     echo -e "\e[97mPasso$amarillo 3/10\e[0m"
     echo -e "$amarillo--> Sem caracteres especiais: \!#$ e/ou espaços"
     echo -en "\e[33mDigite um Usuario Admin (ex: OrionDesign): \e[0m" && read -r user_humhub
     echo ""
 
-    ## Pergunta o email da ferramenta
+    ## Pergunta o email da Herramientas
     echo -e "\e[97mPasso$amarillo 4/10\e[0m"
     echo -en "\e[33mDigite o Email do Admin: (ex: contato@oriondesign.art.br): \e[0m" && read -r email_humhub
     echo ""
     
-    ## Pergunta o senha da ferramenta
+    ## Pergunta o senha da Herramientas
     echo -e "\e[97mPasso$amarillo 5/10\e[0m"
     echo -e "$amarillo--> Sem caracteres especiais: \!#$"
     echo -en "\e[33mDigite uma Senha para o Admin (ex: @Senha123_): \e[0m" && read -r pass_humhub
@@ -24138,7 +24138,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_humhub
 
         ## Mostra mensagem para preencher informações
@@ -24422,17 +24422,17 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/3\e[0m"
     echo -en "\e[33mDigite o dominio para o Yourls (ex: yourls.oriondesign.art.br): \e[0m" && read -r url_yourls
     echo ""
     
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/3\e[0m"
     echo -en "\e[33mDigite o Usuario (ex: oriondesign): \e[0m" && read -r user_yourls
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/3\e[0m"
     echo -en "\e[33mDigite a Senha do usuario (ex: @Senha123_): \e[0m" && read -r pass_yourls
     echo ""
@@ -24478,7 +24478,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_yourls
 
         ## Mostra mensagem para preencher informações
@@ -24671,7 +24671,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/6\e[0m"
     echo -en "\e[33mDigite o dominio para o TwentyCRM (ex: twentycrm.oriondesign.art.br): \e[0m" && read -r url_twentycrm
     echo ""
@@ -24756,7 +24756,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_twentycrm
 
         ## Mostra mensagem para preencher informações
@@ -25071,7 +25071,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o Mattermost (ex: mattermost.oriondesign.art.br): \e[0m" && read -r url_mattermost
     echo ""
@@ -25110,7 +25110,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_mattermost
 
         ## Mostra mensagem para preencher informações
@@ -25326,18 +25326,18 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/8\e[0m"
     echo -en "\e[33mDigite o dominio para o Outline (ex: outline.oriondesign.art.br): \e[0m" && read -r url_outline
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/8\e[0m"
     echo -e "$amarillo--> Caso não tiver crie em: https://console.cloud.google.com/welcome"
     echo -en "\e[33mDigite o seu ID do Cliente Google (ex: XXXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.apps.googleusercontent.com): \e[0m" && read -r id_google_outline
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/8\e[0m"
     echo -e "$amarillo--> Caso não tiver crie em: https://console.cloud.google.com/apis/credentials"
     echo -en "\e[33mDigite a sua Chave Secreta do Cliente Google (ex: XXXXXX-XXXXXXXXXXXXXXXXXXXXXXXX-XXX): \e[0m" && read -r key_google_outline
@@ -25440,7 +25440,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_outline
 
         ## Mostra mensagem para preencher informações
@@ -25714,7 +25714,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o FocalBoard (ex: focalboard.oriondesign.art.br): \e[0m" && read -r url_focalboard
     echo ""
@@ -25753,7 +25753,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_focalboard
 
         ## Mostra mensagem para preencher informações
@@ -25927,7 +25927,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o GLPI (ex: glpi.oriondesign.art.br): \e[0m" && read -r url_glpi
     echo ""
@@ -25966,7 +25966,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_glpi
 
         ## Mostra mensagem para preencher informações
@@ -26174,7 +26174,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o Anything LLM (ex: anythingllm.oriondesign.art.br): \e[0m" && read -r url_anythingllm
     echo ""
@@ -26213,7 +26213,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_anythingllm
 
         ## Mostra mensagem para preencher informações
@@ -26426,7 +26426,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o Excalidraw (ex: excalidraw.oriondesign.art.br): \e[0m" && read -r url_excalidraw
     echo ""
@@ -26465,7 +26465,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_excalidraw
 
         ## Mostra mensagem para preencher informações
@@ -26647,7 +26647,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o Easy!Appointments (ex: easyappointments.oriondesign.art.br): \e[0m" && read -r url_easyappointments
     echo ""
@@ -26686,7 +26686,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_easyappointments
 
         ## Mostra mensagem para preencher informações
@@ -26733,7 +26733,7 @@ echo ""
 sleep 1
 
 
-# Cria o arquivo com o conteúdo desejado
+# Cria o archivo com o conteúdo desejado
 cat > apache-custom.conf << EOL
 ServerName $url_easyappointments
 EOL
@@ -26741,7 +26741,7 @@ EOL
 # Cria o diretório, se ainda não existir
 mkdir -p /root/easyappointments${1:+_$1} > /dev/null 2>&1
 
-# Move o arquivo para o diretório de destino
+# Move o archivo para o diretório de destino
 sudo mv apache-custom.conf /root/easyappointments${1:+_$1}/apache-custom.conf
 
 ## Criando a stack
@@ -27010,7 +27010,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_documenso
 
         ## Mostra mensagem para preencher informações
@@ -27271,28 +27271,28 @@ requisitar_outra_instalacao
 ### Inicia um Loop até os dados estarem certos
 #while true; do
 #
-#    ##Pergunta o Dominio para a ferramenta
+#    ##Pergunta o Dominio para a Herramientas
 #    echo -e "\e[97mPasso$amarillo 1/10\e[0m"
 #    echo -en "\e[33mDigite o dominio para o Moodle (ex: moodle.oriondesign.art.br): \e[0m" && read -r url_moodle
 #    echo ""
 #
-#    ##Pergunta o Dominio para a ferramenta
+#    ##Pergunta o Dominio para a Herramientas
 #    echo -e "\e[97mPasso$amarillo 2/10\e[0m"
 #    echo -en "\e[33mDigite o nome para o projeto (ex: OrionDesign): \e[0m" && read -r project_name_moodle
 #    echo ""
 #
-#    ##Pergunta o Dominio para a ferramenta
+#    ##Pergunta o Dominio para a Herramientas
 #    echo -e "\e[97mPasso$amarillo 3/10\e[0m"
 #    echo -en "\e[33mDigite um Nome de Usuario (ex: oriondesign): \e[0m" && read -r user_moodle
 #    echo ""
 #
-#    ##Pergunta o Dominio para a ferramenta
+#    ##Pergunta o Dominio para a Herramientas
 #    echo -e "\e[97mPasso$amarillo 4/10\e[0m"
 #    echo -e "$amarillo--> Sem caracteres especiais: \!#$"
 #    echo -en "\e[33mDigite uma Senha para o Usuario (ex: @Senha123_): \e[0m" && read -r pass_moodle
 #    echo ""
 #
-#    ##Pergunta o Dominio para a ferramenta
+#    ##Pergunta o Dominio para a Herramientas
 #    echo -e "\e[97mPasso$amarillo 5/10\e[0m"
 #    echo -e "$amarillo--> Sem caracteres especiais: \!#$"
 #    echo -en "\e[33mDigite um Email para o Usuario (ex: contato@oriondesign.art.br): \e[0m" && read -r mail_moodle
@@ -27403,7 +27403,7 @@ requisitar_outra_instalacao
 #        ## Limpar o terminal
 #        clear
 #
-#        ## Mostra o nome da ferramenta
+#        ## Mostra o nome da Herramientas
 #        nome_moodle
 #
 #        ## Mostra mensagem para preencher informações
@@ -27610,7 +27610,7 @@ requisitar_outra_instalacao
 #echo -e "\e[33mSenha:\e[97m $pass_moodle\e[0m"
 #echo ""
 #
-#echo -e "\e[97mObservação:\e[33m Esta é uma ferramenta que pode demorar para iniciar na primeira vez\e[0m"
+#echo -e "\e[97mObservação:\e[33m Esta é uma Herramientas que pode demorar para iniciar na primeira vez\e[0m"
 #echo -e "\e[33mrecomendo aguardar alguns instantes antes de tentar abrir para não prejudicar\e[0m"
 #echo -e "\e[33ma sua instalação que já foi realizado.\e[0m"
 #
@@ -27735,7 +27735,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_tooljet
 
         ## Mostra mensagem para preencher informações
@@ -28084,17 +28084,17 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/3\e[0m"
     echo -en "\e[33mDigite o dominio para o Stirling PDF (ex: stirlingpdf.oriondesign.art.br): \e[0m" && read -r url_stirlingpdf
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/3\e[0m"
     echo -en "\e[33mDigite o nome para o App (ex: OrionPDF): \e[0m" && read -r name_stirlingpdf
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/3\e[0m"
     echo -en "\e[33mDigite uma descrição para o App (ex: Meu app de PDF): \e[0m" && read -r desc_stirlingpdf
     echo ""
@@ -28141,7 +28141,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_stirlingpdf
 
         ## Mostra mensagem para preencher informações
@@ -28407,17 +28407,17 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/3\e[0m"
     echo -en "\e[33mDigite o dominio para o ClickHouse (ex: clickhouse.oriondesign.art.br): \e[0m" && read -r url_clickhouse
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/3\e[0m"
     echo -en "\e[33mDigite um nome de usuario para o ClickHouse (ex: admin): \e[0m" && read -r user_clickhouse
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/3\e[0m"
     echo -en "\e[33mDigite uma senha para o usuario (ex: @Senha123_): \e[0m" && read -r pass_clickhouse
     echo ""
@@ -28464,7 +28464,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_clickhouse
 
         ## Mostra mensagem para preencher informações
@@ -28654,17 +28654,17 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/3\e[0m"
     echo -en "\e[33mDigite o dominio para o RedisInsight (ex: redisinsight.oriondesign.art.br): \e[0m" && read -r url_redisinsight
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/3\e[0m"
     echo -en "\e[33mDigite um usuario para o RedisInsight (ex: admin): \e[0m" && read -r user_redisinsight
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/3\e[0m"
     echo -en "\e[33mDigite uma senha para o usuario (ex: @Senha123_): \e[0m" && read -r pass_redisinsight
     echo ""
@@ -28711,7 +28711,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_redisinsight
 
         ## Mostra mensagem para preencher informações
@@ -28906,7 +28906,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o Traccar (ex: traccar.oriondesign.art.br): \e[0m" && read -r url_traccar
     echo ""
@@ -28945,7 +28945,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_traccar
 
         ## Mostra mensagem para preencher informações
@@ -29177,12 +29177,12 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/2\e[0m"
     echo -en "\e[33mDigite o dominio para o Firecrawl (ex: firecrawl.oriondesign.art.br): \e[0m" && read -r url_firecrawl
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/2\e[0m"
     echo -en "\e[33mDigite uma ApiKey da OpenAI: \e[0m" && read -r api_firecrawl
     echo ""
@@ -29225,7 +29225,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_firecrawl
 
         ## Mostra mensagem para preencher informações
@@ -29632,7 +29632,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o Wuzapi (ex: wuzapi.oriondesign.art.br): \e[0m" && read -r url_wuzapi
     echo ""
@@ -29671,7 +29671,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_wuzapi
 
         ## Mostra mensagem para preencher informações
@@ -29898,7 +29898,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/6\e[0m"
     echo -en "\e[33mDigite o dominio para o Krayin CRM (ex: krayincrm.oriondesign.art.br): \e[0m" && read -r url_krayincrm
     echo ""
@@ -29998,7 +29998,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_krayincrm
 
         ## Mostra mensagem para preencher informações
@@ -30359,27 +30359,27 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/10\e[0m"
     echo -en "\e[33mDigite o dominio para o Planka (ex: planka.oriondesign.art.br): \e[0m" && read -r url_planka
     echo ""
   
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/10\e[0m"
     echo -en "\e[33mDigite o nome do usuario administrador (ex: Willian): \e[0m" && read -r nome_adm_planka
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/10\e[0m"
     echo -en "\e[33mDigite o email do administrador (ex: contato@oriondesign.art.br): \e[0m" && read -r email_adm_planka
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 4/10\e[0m"
     echo -en "\e[33mDigite o usuario do administrador (ex: admin): \e[0m" && read -r user_adm_planka
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 5/10\e[0m"
     echo -en "\e[33mDigite a senha do administrador (ex: @Senha123_): \e[0m" && read -r senha_adm_planka
     echo ""
@@ -30490,7 +30490,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_planka
 
         ## Mostra mensagem para preencher informações
@@ -30765,7 +30765,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio do WPPConnect (ex: wppconnect.oriondesign.art.br): \e[0m" && read -r url_wppconnect
     echo ""
@@ -30805,7 +30805,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_wppconnect
 
         ## Mostra mensagem para preencher informações
@@ -30967,7 +30967,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o Browserless (ex: browserless.oriondesign.art.br): \e[0m" && read -r url_browserless
     echo ""
@@ -31006,7 +31006,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_browserless
 
         ## Mostra mensagem para preencher informações
@@ -31171,12 +31171,12 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/2\e[0m"
     echo -en "\e[33mDigite o dominio para o Frappe ERPNext (ex: crm.oriondesign.art.br): \e[0m" && read -r url_frappe
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/2\e[0m"
     echo -en "\e[33mDigite a Senha do usuario Administrador (ex: @Senha123_): \e[0m" && read -r senha_frappe
     echo ""
@@ -31219,7 +31219,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_frappe
 
         ## Mostra mensagem para preencher informações
@@ -31651,7 +31651,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o Bolt (ex: bolt.oriondesign.art.br): \e[0m" && read -r url_bolt
     echo ""
@@ -31690,7 +31690,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_bolt
 
         ## Mostra mensagem para preencher informações
@@ -31869,7 +31869,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o WiseMapping (ex: wisemapping.oriondesign.art.br): \e[0m" && read -r url_wisemapping
     echo ""
@@ -31911,7 +31911,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_wisemapping
 
         ## Mostra mensagem para preencher informações
@@ -32081,10 +32081,10 @@ logging:
     org.hibernate: WARN
 EOL
 if [ $? -eq 0 ]; then
-    echo "2/3 - [ OK ] - Criando arquivo application.yml"
+    echo "2/3 - [ OK ] - Criando archivo application.yml"
 else
-    echo "2/3 - [ OFF ] - Criando arquivo application.yml"
-    echo "Não foi criar o arquivo application.yml"
+    echo "2/3 - [ OFF ] - Criando archivo application.yml"
+    echo "Não foi criar o archivo application.yml"
 fi
 
 cat > nginx.conf <<EOL
@@ -32186,10 +32186,10 @@ server {
 }
 EOL
 if [ $? -eq 0 ]; then
-    echo "3/3 - [ OK ] - Criando arquivo nginx.conf"
+    echo "3/3 - [ OK ] - Criando archivo nginx.conf"
 else
-    echo "3/3 - [ OFF ] - Criando arquivo nginx.conf"
-    echo "Não foi criar o arquivo nginx.conf"
+    echo "3/3 - [ OFF ] - Criando archivo nginx.conf"
+    echo "Não foi criar o archivo nginx.conf"
 fi
 echo ""
 
@@ -32370,12 +32370,12 @@ while true; do
     echo -en "\e[33mDigite o Dominio para a API da EvoAI (ex: evoapi.oriondesign.art.br): \e[0m" && read -r url_evoai_api
     echo ""
 
-    ##Pergunta o Usuario para a ferramenta
+    ##Pergunta o Usuario para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/9\e[0m"
     echo -en "\e[33mDigite um email para o usuario admin (ex: contato@oriondesign.art.br): \e[0m" && read -r email_evoai
     echo ""
     
-    ##Pergunta a Senha para a ferramenta
+    ##Pergunta a Senha para a Herramientas
     echo -e "\e[97mPasso$amarillo 4/9\e[0m"
     echo -e "$amarillo--> Minimo 8 caracteres. Use Letras MAIUSCULAS e minusculas, numero e um caractere especial @ ou _"
     echo -e "$amarillo--> Evite os caracteres especiais: \!#$"
@@ -32484,7 +32484,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_evoai
 
         ## Mostra mensagem para preencher informações
@@ -32802,17 +32802,17 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/3\e[0m"
     echo -en "\e[33mDigite o dominio para o Keycloak (ex: keycloak.oriondesign.art.br): \e[0m" && read -r url_keycloak
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/3\e[0m"
     echo -en "\e[33mDigite um usuario para o Keycloak (ex: admin): \e[0m" && read -r user_keycloak
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/3\e[0m"
     echo -en "\e[33mDigite uma senha para o usuario (ex: @Senha123_): \e[0m" && read -r senha_keycloak
     echo ""
@@ -32859,7 +32859,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_keycloak
 
         ## Mostra mensagem para preencher informações
@@ -33190,7 +33190,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_passbolt
 
         ## Mostra mensagem para preencher informações
@@ -33461,7 +33461,7 @@ echo "3/5 - [ OK ] - Criando passbolt.php"
 
 chmod 640 "$PASSBOLT_FILE"
 chown www-data:www-data "$PASSBOLT_FILE"
-echo "4/5 - [ OK ] - Dando permissão ao arquivo"
+echo "4/5 - [ OK ] - Dando permissão ao archivo"
 
 sleep 5
 
@@ -33549,17 +33549,17 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/3\e[0m"
     echo -en "\e[33mDigite o dominio para o Gotenberg (ex: gotenberg.oriondesign.art.br): \e[0m" && read -r url_gotenberg
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/3\e[0m"
     echo -en "\e[33mDigite o usuario para o Gotenberg (ex: OrionDesign): \e[0m" && read -r gotenberg_user
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/3\e[0m"
     echo -en "\e[33mDigite a senha para o Gotenberg (ex: @Senha123_): \e[0m" && read -r gotenberg_pass
     echo ""
@@ -33606,7 +33606,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_gotenberg
 
         ## Mostra mensagem para preencher informações
@@ -33792,7 +33792,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o Wiki.JS (ex: wiki.oriondesign.art.br): \e[0m" && read -r url_wiki
     echo ""
@@ -33831,7 +33831,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_wiki
 
         ## Mostra mensagem para preencher informações
@@ -34028,7 +34028,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o AzuraCast (ex: azuracast.oriondesign.art.br): \e[0m" && read -r url_azuracast
     echo ""
@@ -34067,7 +34067,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_azuracast
 
         ## Mostra mensagem para preencher informações
@@ -34324,23 +34324,23 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/4\e[0m"
     echo -en "\e[33mDigite o dominio para o Painel do Shlink (ex: painel-shlink.oriondesign.art.br): \e[0m" && read -r url_shlink
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/4\e[0m"
     echo -en "\e[33mDigite o dominio para a API do Shlink (ex: shlink.oriondesign.art.br): \e[0m" && read -r url_shlink_api
     echo ""
 
-    ## Pergunta o usuario da ferramenta
+    ## Pergunta o usuario da Herramientas
     echo -e "\e[97mPasso$amarillo 3/4\e[0m"
     echo -e "$amarillo--> Sem caracteres especiais: \!#$ e/ou espaços"
     echo -en "\e[33mDigite um usuario (ex: OrionDesign): \e[0m" && read -r shlink_user
     echo ""
 
-    ## Pergunta o senha da ferramenta
+    ## Pergunta o senha da Herramientas
     echo -e "\e[97mPasso$amarillo 4/4\e[0m"
     echo -e "$amarillo--> Sem caracteres especiais: \!#$"
     echo -en "\e[33mDigite uma Senha (ex: @Senha123_): \e[0m" && read -r shlink_pass
@@ -34392,7 +34392,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_shlink
 
         ## Mostra mensagem para preencher informações
@@ -34659,12 +34659,12 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/2\e[0m"
     echo -en "\e[33mDigite o dominio para o HBBS do Rustdesk (ex: hbbs-rustdesk.oriondesign.art.br): \e[0m" && read -r url_hbbs
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/2\e[0m"
     echo -en "\e[33mDigite o dominio para o HBBR do Rustdesk (ex: hbbr-rustdesk.oriondesign.art.br): \e[0m" && read -r url_hbbr
     echo ""
@@ -34707,7 +34707,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_rustdesk
 
         ## Mostra mensagem para preencher informações
@@ -34964,17 +34964,17 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/8\e[0m"
     echo -en "\e[33mDigite o dominio para o Frontend do Hoppscotch (ex: hoppscotch.oriondesign.art.br): \e[0m" && read -r url_hoppscotch_frontend
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/8\e[0m"
     echo -en "\e[33mDigite o dominio para a API Admin do Hoppscotch (ex: admin-hoppscotch.oriondesign.art.br): \e[0m" && read -r url_hoppscotch_admin
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/8\e[0m"
     echo -en "\e[33mDigite o dominio para a API Backend do Hoppscotch (ex: backend-hoppscotch.oriondesign.art.br): \e[0m" && read -r url_hoppscotch_backend
     echo ""
@@ -35075,7 +35075,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_hoppscotch
 
         ## Mostra mensagem para preencher informações
@@ -35440,22 +35440,22 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/4\e[0m"
     echo -en "\e[33mDigite o dominio para a API do TranscreveZap (ex: apitranscreve.oriondesign.art.br): \e[0m" && read -r api_transcrevezap
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/4\e[0m"
     echo -en "\e[33mDigite o dominio para o Manager do TranscreveZap (ex: transcrevezap.oriondesign.art.br): \e[0m" && read -r url_transcrevezap
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/4\e[0m"
     echo -en "\e[33mDigite um usuario para o TranscreveZap (ex: OrionDesign): \e[0m" && read -r user_transcrevezap
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 4/4\e[0m"
     echo -en "\e[33mDigite uma senha para o TranscreveZap (ex: @Senha123_): \e[0m" && read -r pass_transcrevezap
     echo ""
@@ -35506,7 +35506,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_transcrevezap
 
         ## Mostra mensagem para preencher informações
@@ -35722,7 +35722,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o OmniTools (ex: omnitools.oriondesign.art.br): \e[0m" && read -r url_omnitools
     echo ""
@@ -35761,7 +35761,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_omnitools
 
         ## Mostra mensagem para preencher informações
@@ -35914,7 +35914,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/3\e[0m"
     echo -en "\e[33mDigite o Dominio para o Serpbear (ex: serpbear.oriondesign.art.br): \e[0m" && read -r url_serpbear
     echo ""
@@ -35971,7 +35971,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_serpbear
 
         ## Mostra mensagem para preencher informações
@@ -36153,7 +36153,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o Dominio para o ActivePieces (ex: activepieces.oriondesign.art.br): \e[0m" && read -r url_activepieces
     echo ""
@@ -36192,7 +36192,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_activepieces
 
         ## Mostra mensagem para preencher informações
@@ -36452,17 +36452,17 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/3\e[0m"
     echo -en "\e[33mDigite o Dominio para o Authentik (ex: authentik.oriondesign.art.br): \e[0m" && read -r url_authentik
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/3\e[0m"
     echo -en "\e[33mDigite o email para o Authentik (ex: orion@oriondesign.art.br): \e[0m" && read -r email_authentik
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/3\e[0m"
     echo -en "\e[33mDigite o senha para o Authentik (ex: @Senha123_): \e[0m" && read -r senha_authentik
     echo ""
@@ -36509,7 +36509,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_authentik
 
         ## Mostra mensagem para preencher informações
@@ -36808,12 +36808,12 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/2\e[0m"
     echo -en "\e[33mDigite o Dominio para o Checkmate (ex: checkmate.oriondesign.art.br): \e[0m" && read -r url_checkmate
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/2\e[0m"
     echo -en "\e[33mDigite o Dominio para a API do Checkmate (ex: checkmate-api.oriondesign.art.br): \e[0m" && read -r url_checkmate_api
     echo ""
@@ -36857,7 +36857,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_checkmate
 
         ## Mostra mensagem para preencher informações
@@ -37121,7 +37121,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o Dominio para o HeyForm (ex: heyform.oriondesign.art.br): \e[0m" && read -r url_heyform
     echo ""
@@ -37161,7 +37161,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_heyform
 
         ## Mostra mensagem para preencher informações
@@ -37413,7 +37413,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o Dominio para o Wekan (ex: wekan.oriondesign.art.br): \e[0m" && read -r url_wekan
     echo ""
@@ -37453,7 +37453,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_wekan
 
         ## Mostra mensagem para preencher informações
@@ -37642,7 +37642,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o Dominio para o OpenSign (ex: opensign.oriondesign.art.br): \e[0m" && read -r url_opensign
     echo ""
@@ -37682,7 +37682,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_opensign
 
         ## Mostra mensagem para preencher informações
@@ -37947,7 +37947,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o Dominio para o Docmost (ex: docmost.oriondesign.art.br): \e[0m" && read -r url_docmost
     echo ""
@@ -37987,7 +37987,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_docmost
 
         ## Mostra mensagem para preencher informações
@@ -38248,7 +38248,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o Dominio para o NetBox (ex: netbox.oriondesign.art.br): \e[0m" && read -r url_netbox
     echo ""
@@ -38288,7 +38288,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_netbox
 
         ## Mostra mensagem para preencher informações
@@ -38713,17 +38713,17 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/3\e[0m"
     echo -en "\e[33mDigite o Dominio para o Kafka (ex: kafka.oriondesign.art.br): \e[0m" && read -r url_kafka
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/3\e[0m"
     echo -en "\e[33mDigite o Usuario para o Kafka (ex: admin): \e[0m" && read -r user_ntfy
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/3\e[0m"
     echo -en "\e[33mDigite a Senha para o Kafka (ex: @Senha123_): \e[0m" && read -r pass_ntfy
     echo ""
@@ -38770,7 +38770,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_kafka
 
         ## Mostra mensagem para preencher informações
@@ -39028,7 +39028,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o Dominio para o AstraCampaign (ex: astracampaign.oriondesign.art.br): \e[0m" && read -r url_astracampaign
     echo ""
@@ -39068,7 +39068,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_astracampaign
 
         ## Mostra mensagem para preencher informações
@@ -39357,12 +39357,12 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/2\e[0m"
     echo -en "\e[33mDigite o Dominio para o Duplicati (ex: duplicati.oriondesign.art.br): \e[0m" && read -r url_duplicati
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/2\e[0m"
     echo -en "\e[33mDigite a Senha para acessar o Duplicati (ex: @Senha123_): \e[0m" && read -r pass_duplicati
     echo ""
@@ -39406,7 +39406,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_duplicati
 
         ## Mostra mensagem para preencher informações
@@ -39588,7 +39588,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o Dominio para o PgBackWeb (ex: pgbackweb.oriondesign.art.br): \e[0m" && read -r url_pgbackweb
     echo ""
@@ -39627,7 +39627,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_pgbackweb
 
         ## Mostra mensagem para preencher informações
@@ -39828,24 +39828,24 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/4\e[0m"
     echo -en "\e[33mDigite o Dominio para o Jitsi (ex: jitsi.oriondesign.art.br): \e[0m" && read -r url_jitsi
     echo ""
 
     read -r ip _ <<<$(hostname -I | tr ' ' '\n' | grep -v '^127\.0\.0\.1' | grep -v '^10\.0\.0\.' | tr '\n' ' ')
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/4\e[0m"
     echo -en "\e[33mDigite o IP Publico da VPS (ex: $ip): \e[0m" && read -r ip_jitsi
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/4\e[0m"
     echo -en "\e[33mDigite o Usuario para o Jitsi (ex: admin): \e[0m" && read -r user_jitsi
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 4/4\e[0m"
     echo -en "\e[33mDigite a Senha para o Jitsi (ex: @Senha123_): \e[0m" && read -r pass_jitsi
     echo ""
@@ -39896,7 +39896,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_jitsi
 
         ## Mostra mensagem para preencher informações
@@ -39963,7 +39963,7 @@ services:
 
     ## 📹 Recursos de Gravação e Transcrição
       - ENABLE_RECORDING=0 ## Gravação via Jibri (infra extra) – deixe 0 se não tiver
-      - ENABLE_FILE_RECORDING_SHARING=0 ## Compartilhar arquivo de gravação (se usar Jibri)
+      - ENABLE_FILE_RECORDING_SHARING=0 ## Compartilhar archivo de gravação (se usar Jibri)
       - ENABLE_TRANSCRIPTIONS=0 ## Transcrições via Jigasi/STT (infra extra) – deixe 0
 
     ## 💬 Interatividade e Engajamento
@@ -40290,17 +40290,17 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/3\e[0m"
     echo -en "\e[33mDigite o Dominio para o CodeServer (ex: code-server.oriondesign.art.br): \e[0m" && read -r url_code_server
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 2/3\e[0m"
     echo -en "\e[33mDigite a senha Admin do CodeServer (ex: @Senha123_): \e[0m" && read -r pass_admin_code_server
     echo ""
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 3/3\e[0m"
     echo -en "\e[33mDigite a senha SuperAdmin do CodeServer (ex: @SuperSenha123_): \e[0m" && read -r pass_super_admin_code_server
     echo ""
@@ -40347,7 +40347,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_code_server
 
         ## Mostra mensagem para preencher informações
@@ -40538,7 +40538,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o Dominio para o Papra (ex: papra.oriondesign.art.br): \e[0m" && read -r url_papra
     echo ""
@@ -40577,7 +40577,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_papra
 
         ## Mostra mensagem para preencher informações
@@ -40773,7 +40773,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o Dominio para o ZeroByte (ex: zerobyte.oriondesign.art.br): \e[0m" && read -r url_zerobyte
     echo ""
@@ -40812,7 +40812,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_zerobyte
 
         ## Mostra mensagem para preencher informações
@@ -41251,7 +41251,7 @@ preencha_as_info
 ## Inicia um Loop até os dados estarem certos
 while true; do
 
-    ##Pergunta o Dominio para a ferramenta
+    ##Pergunta o Dominio para a Herramientas
     echo -e "\e[97mPasso$amarillo 1/1\e[0m"
     echo -en "\e[33mDigite o dominio para o OpenWebUI (ex: openwebui.oriondesign.art.br): \e[0m" && read -r url_openwebui
     echo ""
@@ -41290,7 +41290,7 @@ while true; do
         ## Limpar o terminal
         clear
 
-        ## Mostra o nome da ferramenta
+        ## Mostra o nome da Herramientas
         nome_openwebui
 
         ## Mostra mensagem para preencher informações
@@ -41798,7 +41798,7 @@ portainer.reset() {
         echo "7/7 - [ OK ]"
     else
         echo "7/7 - [ OFF ]"
-        echo "Ops, não foi possivel remover o arquivo output. txt ou ele não existe"
+        echo "Ops, não foi possivel remover o archivo output. txt ou ele não existe"
     fi
 
     echo ""
@@ -41886,7 +41886,7 @@ portainer.update() {
         echo "1/2 - [ OK ] - Comando de atualização enviado"
     else
         echo "1/2 - [ OFF ] - Erro ao atualizar o Portainer"
-        echo "Verifique se o arquivo 'portainer.yaml' existe e está correto."
+        echo "Verifique se o archivo 'portainer.yaml' existe e está correto."
         return 1
     fi
 
@@ -42022,7 +42022,7 @@ if [ $? -eq 0 ]; then
     echo "2/3 - [ OK ] - Subindo stack do traefik"
 else
     echo "2/3 - [ OFF ] - Erro ao subir stack do traefik"
-    echo "Verifique se o arquivo 'traefik.yaml' existe e está correto."
+    echo "Verifique se o archivo 'traefik.yaml' existe e está correto."
     return 1
 fi
 
@@ -42056,13 +42056,13 @@ while true; do
     echo -en "\e[33mDigite um link para o Dashboard do Traefik (ex: traefik.oriondesign.art.br): \e[0m" && read -r traefik_url_dashboard
     echo ""
 
-    ## Pergunta o usuario da ferramenta
+    ## Pergunta o usuario da Herramientas
     echo -e "\e[97mPasso$amarillo 2/3\e[0m"
     echo -e "$amarillo--> Sem caracteres especiais: \!#$ e/ou espaços"
     echo -en "\e[33mDigite um usuario (ex: OrionDesign): \e[0m" && read -r traefik_user
     echo ""
 
-    ## Pergunta o senha da ferramenta
+    ## Pergunta o senha da Herramientas
     echo -e "\e[97mPasso$amarillo 3/3\e[0m"
     echo -e "$amarillo--> Sem caracteres especiais: \!#$"
     echo -en "\e[33mDigite uma Senha (ex: @Senha123_): \e[0m" && read -r traefik_pass
@@ -42217,7 +42217,7 @@ if [ $? -eq 0 ]; then
     echo "2/3 - [ OK ] - Subindo stack do traefik"
 else
     echo "2/3 - [ OFF ] - Erro ao subir stack do traefik"
-    echo "Verifique se o arquivo 'traefik.yaml' existe e está correto."
+    echo "Verifique se o archivo 'traefik.yaml' existe e está correto."
     return 1
 fi
 
@@ -42345,9 +42345,9 @@ sudo bash -c 'cat > /etc/systemd/system/docker.service.d/override.conf <<EOF
 Environment=DOCKER_MIN_API_VERSION=1.24
 EOF'
 if [ $? -eq 0 ]; then
-    echo "2/6 - [ OK ] - Criando arquivo de configuração do Docker"
+    echo "2/6 - [ OK ] - Criando archivo de configuração do Docker"
 else
-    echo "2/6 - [ OFF ] - Criando arquivo de configuração do Docker"
+    echo "2/6 - [ OFF ] - Criando archivo de configuração do Docker"
 fi
 
 sudo systemctl daemon-reexec > /dev/null 2>&1
