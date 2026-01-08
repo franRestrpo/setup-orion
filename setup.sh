@@ -49,7 +49,7 @@ $PIP_CMD install ansible docker requests > /dev/null 2>&1 || error "Fallo al ins
 success "Entorno Python listo (Ansible + Docker SDK instalados)."
 
 # 5. Ejecución del Playbook
-PLAYBOOK="install.yml"
+PLAYBOOK="playbook.yml"
 ANSIBLE_CMD="$VENV_DIR/bin/ansible-playbook"
 
 if [ ! -f "$PLAYBOOK" ]; then

@@ -1,6 +1,0 @@
-- name: Deploy Orion stack
-  community.docker.docker_stack:
-    state: present
-    name: orion
-    compose:
-      - docker-compose.yml
