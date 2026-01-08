@@ -44,7 +44,9 @@ PIP_CMD="$VENV_DIR/bin/pip"
 log "Instalando Ansible y librerías necesarias dentro del entorno virtual..."
 # Instalamos 'ansible' (core + community), 'docker' (SDK para módulos) y 'requests'
 $PIP_CMD install --upgrade pip > /dev/null
-$PIP_CMD install --force-reinstall ansible docker requests websocket-client jsondiff pyyaml
+$PIP_CMD install ansible docker requests websocket-client jsondiff pyyaml
+
+#$PIP_CMD install --force-reinstall ansible docker requests websocket-client jsondiff pyyaml
 
 # Forzamos la reinstalación de requests y el SDK de docker para asegurar compatibilidad
 log "Forzando actualización de librerías críticas..."
