@@ -1,24 +1,34 @@
-# Orion Design - Modern Infrastructure
+# Orion Design - Infraestructura Moderna
 
-Este proyecto automatiza el despliegue de servidores listos para **Orion Design**, utilizando estándares modernos de DevOps.
+Automatización de despliegue de servidores para **Orion Design** utilizando Ansible y Python, siguiendo estándares modernos de DevOps.
 
-## Características
-- **Clean Code:** Estructura modular basada en roles de Ansible, validada con `ansible-lint`.
-- **Docker Moderno:** Instala la última versión oficial de Docker Engine y Docker Compose V2.
-- **Verificación Automática:** El playbook comprueba que `git`, `docker` y `docker compose` están instalados y muestra un informe final.
-- **Idempotencia:** Puede ejecutarse múltiples veces sin alterar el estado del sistema si no hay cambios.
-- **Compatibilidad Futura:** Código actualizado para eliminar advertencias de obsolescencia (`deprecation warnings`) de Ansible.
+## 🚀 Características Principales
 
-## Documentación
+*   **Código Limpio y Modular:** Estructura basada en roles de Ansible, validada con `ansible-lint` para garantizar calidad y mantenibilidad.
+*   **Docker de Última Generación:** Instalación automatizada de Docker Engine oficial y Docker Compose V2.
+*   **Orquestación Inteligente:** Verificación automática de componentes (`git`, `docker`, `compose`) e informes de estado al finalizar.
+*   **Idempotencia Garantizada:** Ejecuciones seguras y repetibles sin efectos secundarios no deseados.
+*   **Preparado para el Futuro:** Código optimizado y libre de advertencias de obsolescencia.
 
-| Archivo | Descripción |
-|---|---|
-| [`INSTALL.md`](INSTALL.md) | Guía detallada para la preparación del entorno y la primera ejecución. |
-| [`USO.md`](USO.md) | Instrucciones sobre cómo actualizar y verificar el despliegue. |
-| [`FUNCIONALIDADES.md`](FUNCIONALIDADES.md) | Descripción técnica detallada de las capacidades y procesos del proyecto. |
+## 📚 Documentación
 
-## Requisitos del Sistema Destino
-- **SO:** Debian 11/12, Ubuntu 20.04/22.04/24.04.
-- **Acceso:** Usuario con permisos `sudo`.
+Toda la información necesaria para desplegar, usar y entender el proyecto está organizada en los siguientes documentos:
 
-Para empezar, consulta la [**Guía de Instalación**](INSTALL.md).
+| Documento | Propósito |
+| :--- | :--- |
+| 🛠️ [**Guía de Instalación**](INSTALL.md) | Paso a paso para preparar el entorno y realizar el primer despliegue. |
+| 📖 [**Manual de Uso**](USO.md) | Instrucciones para actualizaciones, mantenimiento y verificación. |
+| ⚙️ [**Funcionalidades Técnicas**](FUNCIONALIDADES.md) | Detalles profundos sobre la arquitectura, roles de Ansible y scripts internos. |
+
+## 📋 Requisitos del Sistema
+
+El sistema destino debe cumplir con lo siguiente:
+
+*   **Sistema Operativo:**
+    *   Debian 11 (Bullseye) / 12 (Bookworm)
+    *   Ubuntu 20.04 LTS / 22.04 LTS / 24.04 LTS
+*   **Permisos:** Acceso root o usuario con privilegios `sudo`.
+
+## ⚡ Inicio Rápido
+
+Para comenzar inmediatamente con la configuración de tu servidor, dirígete a la [**Guía de Instalación**](INSTALL.md).

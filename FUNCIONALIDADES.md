@@ -52,3 +52,11 @@ El script `Orion-Python-Ansible/scripts/main.py` actúa como el punto de entrada
 *   **Lectura de Configuración:** Capacidad para leer datos de la VPS desde `~/datos_vps/datos_vps` (Nombre del servidor, Red interna).
 *   **Ejecución de Ansible:** Llama a los playbooks de Ansible mediante subprocesos, integrando la potencia de la automatización con la facilidad de uso de un menú.
 *   **Información del Proyecto:** Muestra versiones, licencias y créditos del proyecto Orion Design.
+
+## 3. Estructura de Archivos del Núcleo
+
+*   `ansible/`: Contiene la lógica de automatización.
+    *   `playbooks/`: Playbooks principales (ej. `infra.yml` para infraestructura base).
+    *   `roles/`: Unidades de automatización reutilizables (`common`, `docker`).
+*   `scripts/`: Contiene scripts de soporte y gestión.
+    *   `main.py`: Interfaz CLI principal.
