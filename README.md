@@ -15,6 +15,7 @@ Este proyecto automatiza el despliegue de servidores listos para **Orion Design*
 |---|---|
 | [`INSTALL.md`](INSTALL.md) | Guía detallada para la preparación del entorno y la primera ejecución. |
 | [`USO.md`](USO.md) | Instrucciones sobre cómo actualizar y verificar el despliegue. |
+| [`FUNCIONALIDADES.md`](FUNCIONALIDADES.md) | Descripción técnica detallada de las capacidades y procesos del proyecto. |
 
 ## Requisitos del Sistema Destino
 - **SO:** Debian 11/12, Ubuntu 20.04/22.04/24.04.
