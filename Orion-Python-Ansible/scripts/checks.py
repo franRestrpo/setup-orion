@@ -1,5 +1,5 @@
 import subprocess, sys
-from constants import ORION_NETWORK
+from constants import DEFAULT_NETWORK
 from utils import cmd_exists
 
 def require(cmd: str):
@@ -13,9 +13,13 @@ def swarm_active():
     if state != "active":
         sys.exit("ERROR: Docker Swarm no activo (Ansible debe inicializarlo)")
 
-def network_exists(name=ORION_NETWORK):
+def network_exists(name=DEFAULT_NETWORK):
     out = subprocess.getoutput(
         f"docker network ls --format '{{{{.Name}}}}' | grep -w {name}"
     )
     if not out:
-        sys.exit(f"ERROR: red overlay '{name}' no existe")
+        print(f"Red '{name}' no encontrada. Creando...")
+        subprocess.run(
+            ["docker", "network", "create", "--driver=overlay", name],
+            check=True
+        )

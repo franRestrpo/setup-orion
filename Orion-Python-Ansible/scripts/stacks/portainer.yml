@@ -1,7 +1,7 @@
 version: "3.9"
 
 networks:
-  OrionNet:
+  {{RED_DOCKER}}:
     external: true
 
 volumes:
@@ -11,7 +11,7 @@ services:
   agent:
     image: portainer/agent:latest
     networks:
-      - OrionNet
+      - {{RED_DOCKER}}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/volumes:/var/lib/docker/volumes
@@ -24,7 +24,7 @@ services:
     volumes:
       - portainer_data:/data
     networks:
-      - OrionNet
+      - {{RED_DOCKER}}
     deploy:
       mode: replicated
       replicas: 1
@@ -34,6 +34,7 @@ services:
       labels:
         - "traefik.enable=true"
 
-        - "traefik.http.routers.portainer.rule=Host(`portainer.localhost`)"
-        - "traefik.http.routers.portainer.entrypoints=web"
+        - "traefik.http.routers.portainer.rule=Host(`${PORTAINER_DOMAIN}`)"
+        - "traefik.http.routers.portainer.entrypoints=websecure"
+        - "traefik.http.routers.portainer.tls.certresolver=letsencryptresolver"
         - "traefik.http.services.portainer.loadbalancer.server.port=9000"

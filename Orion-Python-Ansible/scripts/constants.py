@@ -1,4 +1,4 @@
-ORION_NETWORK = "OrionNet"
+DEFAULT_NETWORK = "OrionNet"
 
 MIN_RAM_GB = 2
 MIN_CPU_CORES = 2
