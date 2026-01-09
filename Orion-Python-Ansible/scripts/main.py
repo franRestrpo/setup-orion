@@ -99,18 +99,23 @@ def install_service(service_manifest, config_manager, template_manager):
     if "INTERNAL_NETWORK" in variables:
         ensure_network(variables["INTERNAL_NETWORK"])
 
-    # 3. Generar archivo .env (opcional, si se requiere persistencia separada)
-    # env_path = Path(service_manifest['path']) / ".env"
-    # config_manager.generate_env_file(env_path, variables)
+    # 3. Preparar directorio de despliegue
+    deploy_dir = Path.cwd() / "deploy"
+    deploy_dir.mkdir(exist_ok=True)
     
-    # 4. Renderizar Stack File
+    # 4. Generar archivo .env
+    env_path = deploy_dir / f"{service_manifest['id']}.env"
+    config_manager.generate_env_file(str(env_path), variables)
+    
+    # 5. Renderizar Stack File
     template_path = Path(service_manifest['path']) / "stack.yml.j2"
-    output_path = Path.cwd() / f"{service_manifest['id']}_stack.yml"
+    output_path = deploy_dir / f"{service_manifest['id']}_stack.yml"
     
     try:
         template_manager.render_template(str(template_path), variables, str(output_path))
         print(f"✅ Stack file generated at: {output_path}")
-        print(f"🚀 To deploy run: docker stack deploy -c {output_path.name} {service_manifest['id']}")
+        print(f"✅ Env file generated at: {env_path}")
+        print(f"🚀 To deploy run: cd deploy && docker stack deploy -c {output_path.name} {service_manifest['id']}")
     except Exception as e:
         print(f"❌ Error generating stack file: {e}")
     except EOFError:

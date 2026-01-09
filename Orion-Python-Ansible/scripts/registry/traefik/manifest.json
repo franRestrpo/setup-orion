@@ -14,10 +14,11 @@
       "description": "Traefik Dashboard Username",
       "default": "admin"
     },
-    "TRAEFIK_PASSWORD_HASH": {
+    "TRAEFIK_PASSWORD": {
       "type": "secret",
-      "description": "Traefik Dashboard Password Hash (htpasswd)",
-      "auto_generate": false
+      "description": "Traefik Dashboard Password",
+      "auto_generate": false,
+      "transform": "bcrypt"
     },
     "ACME_EMAIL": {
       "type": "email",

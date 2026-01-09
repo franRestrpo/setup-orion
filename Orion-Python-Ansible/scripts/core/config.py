@@ -1,6 +1,7 @@
 import os
 import secrets
 import string
+import bcrypt
 from typing import Dict, Any, List
 from getpass import getpass
 
@@ -28,10 +29,22 @@ class ConfigManager:
                 if var_type == 'secret':
                     # Generar secreto automáticamente si no se pide input o si el usuario lo prefiere
                     if var_def.get('auto_generate', True):
-                        config_vars[var_name] = self._generate_secret(length=var_def.get('length', 32))
+                        value = self._generate_secret(length=var_def.get('length', 32))
                         print(f"Generated secret for {var_name}")
                     else:
-                        config_vars[var_name] = self._prompt_secret(var_name, description)
+                        value = self._prompt_secret(var_name, description)
+                    
+                    # Aplicar transformación si es necesario (ej: bcrypt para htpasswd)
+                    if var_def.get('transform') == 'bcrypt':
+                        # Traefik basic auth espera user:hash, pero el template ya pone user:.
+                        # Aquí solo devolvemos el hash.
+                        # bcrypt.hashpw devuelve bytes, decodificamos a string.
+                        # bcrypt genera un salt y lo incluye en el hash.
+                        hashed = bcrypt.hashpw(value.encode('utf-8'), bcrypt.gensalt())
+                        value = hashed.decode('utf-8')
+                        print(f"Hashed secret for {var_name}")
+                    
+                    config_vars[var_name] = value
                 
                 elif var_type == 'domain':
                     config_vars[var_name] = self._prompt_input(var_name, description, default, required)

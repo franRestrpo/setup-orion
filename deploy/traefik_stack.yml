@@ -10,7 +10,7 @@ services:
       - "--providers.swarm=true"
       - "--providers.docker.endpoint=unix:///var/run/docker.sock"
       - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.network={{ INTERNAL_NETWORK }}" ## Nome da rede interna
+      - "--providers.docker.network=OrionNet" ## Nome da rede interna
       - "--entrypoints.web.address=:80"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
@@ -20,7 +20,7 @@ services:
       - "--certificatesresolvers.letsencryptresolver.acme.httpchallenge=true"
       - "--certificatesresolvers.letsencryptresolver.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.letsencryptresolver.acme.storage=/etc/traefik/letsencrypt/acme.json"
-      - "--certificatesresolvers.letsencryptresolver.acme.email={{ ACME_EMAIL }}" ## Email para receber as notificações
+      - "--certificatesresolvers.letsencryptresolver.acme.email=frankwstuwar@gmail.com" ## Email para receber as notificações
       - "--log.level=DEBUG"
       - "--log.format=common"
       - "--log.filePath=/var/log/traefik/traefik.log"
@@ -32,7 +32,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
     networks:
-      - {{ INTERNAL_NETWORK }} ## Nome da rede interna
+      - OrionNet ## Nome da rede interna
 
     ports:
       - target: 80
@@ -55,15 +55,15 @@ services:
         - "traefik.http.routers.http-catchall.middlewares=redirect-https@docker"
         - "traefik.http.routers.http-catchall.priority=1"
         # Dashboard labels
-        - "traefik.http.routers.traefik.rule=Host(`{{ TRAEFIK_DASHBOARD_URL }}`)"
+        - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
         - "traefik.http.services.traefik.loadbalancer.server.port=8080"
         - "traefik.http.routers.traefik.tls.certresolver=letsencryptresolver"
         - "traefik.http.routers.traefik.service=traefik"
         - "traefik.http.routers.traefik.entrypoints=websecure"
         - "traefik.http.routers.traefik.priority=1"
         - "traefik.http.routers.traefik.middlewares=authtraefik"
-        # Basic Auth Middleware (User: {{ TRAEFIK_USER }})
-        - "traefik.http.middlewares.authtraefik.basicauth.users={{ TRAEFIK_USER }}:{{ TRAEFIK_PASSWORD }}"
+        # Basic Auth Middleware (User: admin)
+        - "traefik.http.middlewares.authtraefik.basicauth.users=admin:$2b$12$dJxbToRog.USrPHBU3VvwuodJ0wO7kXfIAJ/YBBrLSr02338ED8nK"
 
 ## --------------------------- ORION --------------------------- ##
 
@@ -76,7 +76,7 @@ volumes:
     name: volume_swarm_certificates
 
 networks:
-  {{ INTERNAL_NETWORK }}: ## Nome da rede interna
+  OrionNet: ## Nome da rede interna
     external: true
     attachable: true
-    name: {{ INTERNAL_NETWORK }} ## Nome da rede interna
+    name: OrionNet ## Nome da rede interna
