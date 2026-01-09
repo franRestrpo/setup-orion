@@ -12,7 +12,7 @@
     "INTERNAL_NETWORK": {
       "type": "string",
       "description": "Internal Docker Network Name",
-      "default": "orion_network"
+      "default": "OrionNet"
     }
   },
   "dependencies": ["traefik"]

@@ -29,7 +29,11 @@ def main():
             print(f"{i}. {category}")
         print("0. Exit")
 
-        choice = input("\nSelect a category: ").strip()
+        try:
+            choice = input("\nSelect a category: ").strip()
+        except EOFError:
+            print("\n[DEBUG] EOFError detected. Exiting.")
+            break
         
         if choice == '0':
             break
@@ -45,7 +49,11 @@ def main():
                     print(f"{i}. {service['name']} (v{service['version']})")
                 print("0. Back")
                 
-                srv_choice = input("\nSelect a service to install: ").strip()
+                try:
+                    srv_choice = input("\nSelect a service to install: ").strip()
+                except EOFError:
+                    print("\n[DEBUG] EOFError detected. Exiting.")
+                    break
                 
                 if srv_choice == '0':
                     continue
@@ -61,17 +69,41 @@ def main():
         except ValueError:
             print("Please enter a valid number.")
 
+def ensure_network(network_name):
+    import subprocess
+    try:
+        # Check if network exists
+        result = subprocess.run(
+            ["docker", "network", "ls", "--filter", f"name={network_name}", "--format", "{{.Name}}"],
+            capture_output=True, text=True
+        )
+        if network_name not in result.stdout.strip():
+            print(f"Creating network '{network_name}'...")
+            subprocess.run(
+                ["docker", "network", "create", "--driver=overlay", "--attachable", network_name],
+                check=True
+            )
+            print(f"✅ Network '{network_name}' created.")
+        else:
+            print(f"ℹ️ Network '{network_name}' already exists.")
+    except Exception as e:
+        print(f"⚠️ Failed to check/create network: {e}")
+
 def install_service(service_manifest, config_manager, template_manager):
     print(f"\nInstalling {service_manifest['name']}...")
     
     # 1. Cargar y solicitar variables
     variables = config_manager.load_variables(service_manifest)
     
-    # 2. Generar archivo .env (opcional, si se requiere persistencia separada)
+    # 2. Ensure network exists if defined
+    if "INTERNAL_NETWORK" in variables:
+        ensure_network(variables["INTERNAL_NETWORK"])
+
+    # 3. Generar archivo .env (opcional, si se requiere persistencia separada)
     # env_path = Path(service_manifest['path']) / ".env"
     # config_manager.generate_env_file(env_path, variables)
     
-    # 3. Renderizar Stack File
+    # 4. Renderizar Stack File
     template_path = Path(service_manifest['path']) / "stack.yml.j2"
     output_path = Path.cwd() / f"{service_manifest['id']}_stack.yml"
     
@@ -81,6 +113,10 @@ def install_service(service_manifest, config_manager, template_manager):
         print(f"🚀 To deploy run: docker stack deploy -c {output_path.name} {service_manifest['id']}")
     except Exception as e:
         print(f"❌ Error generating stack file: {e}")
+    except EOFError:
+        # Manejar EOFError para entornos no interactivos
+        print("\n[DEBUG] EOFError detected. This is expected in non-interactive environments.")
+        return
 
 if __name__ == "__main__":
     main()

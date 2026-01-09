@@ -14,9 +14,9 @@
       "description": "Traefik Dashboard Username",
       "default": "admin"
     },
-    "TRAEFIK_PASSWORD": {
+    "TRAEFIK_PASSWORD_HASH": {
       "type": "secret",
-      "description": "Traefik Dashboard Password",
+      "description": "Traefik Dashboard Password Hash (htpasswd)",
       "auto_generate": false
     },
     "ACME_EMAIL": {
@@ -27,7 +27,7 @@
     "INTERNAL_NETWORK": {
       "type": "string",
       "description": "Internal Docker Network Name",
-      "default": "orion_network"
+      "default": "OrionNet"
     }
   },
   "dependencies": []

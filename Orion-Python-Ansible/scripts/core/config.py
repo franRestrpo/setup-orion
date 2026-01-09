@@ -52,8 +52,14 @@ class ConfigManager:
         """Solicita input estándar al usuario."""
         while True:
             prompt_text = f"{description} [{default}]: " if default else f"{description}: "
-            value = input(prompt_text).strip()
-            
+            try:
+                value = input(prompt_text).strip()
+            except EOFError:
+                print("\n[DEBUG] EOFError detected. Using default or failing.")
+                if default:
+                    return default
+                raise
+
             if not value and default:
                 return default
             
@@ -66,7 +72,12 @@ class ConfigManager:
     def _prompt_secret(self, var_name: str, description: str) -> str:
         """Solicita un secreto de forma oculta."""
         while True:
-            value = getpass(f"{description}: ").strip()
+            try:
+                value = getpass(f"{description}: ").strip()
+            except EOFError:
+                print("\n[DEBUG] EOFError detected. Failing.")
+                raise
+
             if value:
                 return value
             print(f"Error: {var_name} is required.")
