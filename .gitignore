@@ -62,3 +62,4 @@ Thumbs.db
 secrets.yml
 *.pem
 *.key
+deploy/
