@@ -22,14 +22,14 @@
 - name: "Establecer defaults detectados"
   ansible.builtin.set_fact:
     default_dominio: "{{ existing_config.stdout_lines[0] | default(app_actual.nombre + '.localhost') }}"
-    default_pass: "{{ existing_config.stdout_lines[1] | default('secretDBpass') }}"
+    default_pass: "{{ existing_config.stdout_lines[1] | default('admin123') }}"
     default_admin: "{{ existing_config.stdout_lines[2] | default('admin@' + (existing_config.stdout_lines[0] if existing_config.stdout_lines[0] != '' else app_actual.nombre + '.localhost')) }}"
   when: env_file_check.stat.exists
 
 - name: "Establecer defaults base (si no hay .env)"
   ansible.builtin.set_fact:
     default_dominio: "{{ app_actual.nombre }}.localhost"
-    default_pass: "secretDBpass"
+    default_pass: "admin123"
     default_admin: "admin@{{ app_actual.nombre }}.localhost"
   when: not env_file_check.stat.exists
 
@@ -160,7 +160,7 @@
           --name {{ app_actual.nombre }}_migrator
           --network OrionNet
           --restart-condition none
-          --env-file /opt/orion/{{ app_actual.nombre }}/.env
+          --env-file {{ playbook_dir }}/deploy/{{ app_actual.nombre }}.env
           chatwoot/chatwoot:latest
           bundle exec rails db:chatwoot_prepare
 
