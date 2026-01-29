@@ -1,38 +1,59 @@
-# Guía de Instalación Completa
+# Guia de Instalación Completa
 
-Esta guía cubre desde la preparación de la máquina de control hasta el despliegue final.
+Esta guía cubre desde la preparación del servidor hasta el despliegue final utilizando nuestro script automatizado `setup.sh`.
 
-## Paso 1: Preparación del Entorno Python (Control Node)
-Ansible requiere Python. Recomendamos usar un entorno virtual para no ensuciar tu sistema.
+## Prerrequisitos
 
-1. **Instalar Python y herramientas base:**
-   ```bash
-   sudo apt update
-   sudo apt install -y python3 python3-venv python3-pip git
-   # Crear carpeta del proyecto
-mkdir orion-setup && cd orion-setup
+- **Sistema Operativo:** Ubuntu 20.04+, Debian 11+
+- **Permisos:** Usuario `root` o permisos de `sudo`.
+- **Conexión a Internet.**
 
-# Crear entorno virtual llamado 'venv'
-python3 -m venv venv
-source venv/bin/activate
-pip install ansible ansible-lint
+## Instrucciones de Instalación
 
-# Instalar roles de Ansible Galaxy (si existen en requirements.yml)
-ansible-galaxy install -r requirements.yml
-# Si tienes clave SSH configurada:
-# Antes de ejecutar, es buena práctica verificar la sintaxis del playbook
-ansible-playbook -i inventory.ini playbook.yml --syntax-check
+Para desplegar toda la infraestructura, utilizaremos el script `setup.sh`, que se encargará de:
 
-# También puedes ejecutar el linter para asegurar la calidad del código
-ansible-lint
+1.  Instalar dependencias del sistema.
+2.  Configurar un entorno virtual de Python.
+3.  Instalar Ansible y las librerías necesarias.
+4.  Ejecutar el playbook principal para configurar Docker, Swarm y otras herramientas.
 
-# Si tienes clave SSH configurada:
-ansible-playbook -i inventory.ini playbook.yml
+### 1. Clonar el repositorio
 
-# Si necesitas escribir la contraseña de SUDO:
-ansible-playbook -i inventory.ini playbook.yml --ask-become-pass
-# Verificar versión de Docker (debe ser 24.x, 25.x o superior)
-docker version
+Si aún no has clonado el repositorio, hazlo en tu directorio de trabajo:
 
-# Verificar Docker Compose V2
-docker compose version
+```bash
+git clone <URL_DEL_REPOSITORIO> setup-orion
+cd setup-orion
+```
+
+### 2. Ejecutar el Script de Setup
+
+El script debe ejecutarse como root para poder instalar paquetes y configurar el sistema.
+
+```bash
+sudo ./setup.sh
+```
+
+El script mostrará el progreso de cada etapa. Si todo finaliza correctamente, verás un mensaje de éxito indicando que la infraestructura está lista.
+
+## Post-Instalación
+
+Una vez finalizado el script, verifica que los servicios estén corriendo:
+
+```bash
+docker stack ls
+docker service ls
+```
+
+Para acceder a los paneles de administración:
+
+- **Traefik Dashboard:** `traefik.localhost` (puede requerir configuración de hosts)
+- **Portainer:** `portainer.localhost` (puede requerir configuración de hosts)
+
+## Solución de Problemas
+
+Si el script falla:
+
+- Revisa los logs que se imprimen en pantalla.
+- Asegúrate de tener conexión a internet.
+- Verifica que no haya bloqueos de apt/dpkg (`sudo lsof /var/lib/dpkg/lock-frontend`).

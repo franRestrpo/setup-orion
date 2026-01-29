@@ -1,34 +1,47 @@
 # Orion Design - Infraestructura Moderna
 
-Automatización de despliegue de servidores para **Orion Design** utilizando Ansible y Python, siguiendo estándares modernos de DevOps.
+Automatización de despliegue de infraestructura para **Orion Design** utilizando Ansible, Python y Docker Swarm.
+
+Este proyecto permite configurar un servidor desde cero hasta tener un cluster de Docker Swarm funcional con Traefik como Reverse Proxy y Portainer para la gestión de contenedores.
 
 ## 🚀 Características Principales
 
-*   **Código Limpio y Modular:** Estructura basada en roles de Ansible, validada con `ansible-lint` para garantizar calidad y mantenibilidad.
-*   **Docker de Última Generación:** Instalación automatizada de Docker Engine oficial y Docker Compose V2.
-*   **Orquestación Inteligente:** Verificación automática de componentes (`git`, `docker`, `compose`) e informes de estado al finalizar.
-*   **Idempotencia Garantizada:** Ejecuciones seguras y repetibles sin efectos secundarios no deseados.
-*   **Preparado para el Futuro:** Código optimizado y libre de advertencias de obsolescencia.
+- **Automatización Total:** Desde la instalación de dependencias hasta el despliegue de stacks.
+- **Gestión con Ansible:** Uso de roles y playbooks para una configuración robusta e idempotente.
+- **Docker Swarm & Stacks:** Orquestación nativa de contenedores para alta disponibilidad.
+- **Traefik & Portainer:** Proxy inverso automático con gestión de certificados SSL y panel de administración visual.
+- **Entorno Aislado:** Uso de entornos virtuales Python para evitar conflictos de dependencias.
+
+## 📂 Estructura del Proyecto
+
+- `setup.sh`: Script maestro de instalación. Prepara el entorno y lanza Ansible.
+- `playbook.yml`: Playbook principal de Ansible.
+- `deploy/`: Contiene los archivos Docker Compose/Stack para Traefik y Portainer.
+- `Orion-Python-Ansible/`: Directorio con roles y configuraciones de Ansible.
+- `redeploy.sh`: Script de utilidad para reiniciar los stacks rápidamente.
 
 ## 📚 Documentación
 
-Toda la información necesaria para desplegar, usar y entender el proyecto está organizada en los siguientes documentos:
-
-| Documento | Propósito |
-| :--- | :--- |
-| 🛠️ [**Guía de Instalación**](INSTALL.md) | Paso a paso para preparar el entorno y realizar el primer despliegue. |
-| 📖 [**Manual de Uso**](USO.md) | Instrucciones para actualizaciones, mantenimiento y verificación. |
-| ⚙️ [**Funcionalidades Técnicas**](FUNCIONALIDADES.md) | Detalles profundos sobre la arquitectura, roles de Ansible y scripts internos. |
-
-## 📋 Requisitos del Sistema
-
-El sistema destino debe cumplir con lo siguiente:
-
-*   **Sistema Operativo:**
-    *   Debian 11 (Bullseye) / 12 (Bookworm)
-    *   Ubuntu 20.04 LTS / 22.04 LTS / 24.04 LTS
-*   **Permisos:** Acceso root o usuario con privilegios `sudo`.
+| Documento                                    | Descripción                                                 |
+| :------------------------------------------- | :---------------------------------------------------------- |
+| 🛠️ [**Guía de Instalación**](INSTALL.md)     | Instrucciones paso a paso para desplegar usando `setup.sh`. |
+| 📖 [**Manual de Uso**](USO.md)               | Cómo actualizar y mantener la infraestructura.              |
+| ⚙️ [**Funcionalidades**](FUNCIONALIDADES.md) | Detalles técnicos de la arquitectura.                       |
 
 ## ⚡ Inicio Rápido
 
-Para comenzar inmediatamente con la configuración de tu servidor, dirígete a la [**Guía de Instalación**](INSTALL.md).
+```bash
+# Entrar como root
+sudo -i
+
+# Clonar repo (si no lo tienes)
+# git clone ...
+
+# Entrar al directorio
+cd setup-orion
+
+# Ejecutar setup
+./setup.sh
+```
+
+Para más detalles, consulta el archivo [INSTALL.md](INSTALL.md).
