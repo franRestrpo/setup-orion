@@ -1,0 +1,84 @@
+---
+# Lógica de procesamiento para una aplicación individual
+
+- name: "Validar datos requeridos para {{ app_actual.nombre }}"
+  ansible.builtin.fail:
+    msg: "Falta el dominio para la aplicación {{ app_actual.nombre }}"
+  when: app_actual.dominio is not defined
+
+- name: "Verificar si el stack {{ app_actual.nombre }} ya existe"
+  ansible.builtin.command: docker stack ls --format '{{ "{{" }}.Name{{ "}}" }}'
+  register: stacks_existentes
+  changed_when: false
+
+- name: "Advertencia si {{ app_actual.nombre }} ya existe"
+  ansible.builtin.debug:
+    msg: "El stack {{ app_actual.nombre }} ya existe. Se actualizará la configuración."
+  when: app_actual.nombre in stacks_existentes.stdout_lines
+
+# Gestión de Dependencias (Redis, Postgres, etc.)
+- name: "Procesar dependencias para {{ app_actual.nombre }}"
+  include_tasks: dependencias.yml
+  when: app_actual.dependencias is defined
+
+- name: "Crear directorio de configuración para {{ app_actual.nombre }}"
+  ansible.builtin.file:
+    path: "/opt/orion/{{ app_actual.nombre }}"
+    state: directory
+    mode: "0755"
+
+- name: "Generar archivo .env para {{ app_actual.nombre }}"
+  ansible.builtin.template:
+    src: "{{ app_actual.nombre }}.env.j2"
+    dest: "/opt/orion/{{ app_actual.nombre }}/.env"
+  register: config_env
+  ignore_errors: true
+
+- name: "Generar docker-compose para {{ app_actual.nombre }}"
+  ansible.builtin.template:
+    src: "{{ app_actual.nombre }}.yml.j2"
+    dest: "/opt/orion/{{ app_actual.nombre }}/docker-compose.yml"
+  register: config_stack
+
+- name: "Desplegar Stack {{ app_actual.nombre }}"
+  ansible.builtin.command:
+    cmd: "docker stack deploy -c /opt/orion/{{ app_actual.nombre }}/docker-compose.yml {{ app_actual.nombre }}"
+  when: config_stack.changed or config_env.changed or (app_actual.nombre not in stacks_existentes.stdout_lines)
+
+- name: "Esperar a que Postgres esté listo para {{ app_actual.nombre }}"
+  ansible.builtin.shell: "docker service logs {{ app_actual.nombre }}_postgres 2>&1 | grep 'ready to accept connections' | tail -n 1"
+  register: postgres_ready
+  until: postgres_ready.rc == 0
+  retries: 30
+  delay: 5
+  when: app_actual.nombre == 'chatwoot' and config_stack.changed
+
+- name: "Inicializar base de datos via Servicio (Swarm)"
+  block:
+    - name: "Eliminar servicio de migración anterior si existe"
+      ansible.builtin.command: "docker service rm {{ app_actual.nombre }}_migrator"
+      ignore_errors: true
+
+    - name: "Crear servicio de migración para {{ app_actual.nombre }}"
+      ansible.builtin.command:
+        cmd: >
+          docker service create 
+          --name {{ app_actual.nombre }}_migrator
+          --network OrionNet
+          --restart-condition none
+          --env-file /opt/orion/{{ app_actual.nombre }}/.env
+          chatwoot/chatwoot:latest
+          bundle exec rails db:chatwoot_prepare
+
+    - name: "Esperar a que termine la migración"
+      ansible.builtin.shell: "docker service ps {{ app_actual.nombre }}_migrator --no-trunc --format '{{ '{{' }}.CurrentState{{ '}}' }}' | head -n 1"
+      register: migration_status
+      until: "migration_status.stdout is search('Complete|Shutdown')"
+      retries: 60
+      delay: 5
+      failed_when: "migration_status.stdout is search('Failed|Rejected')"
+
+    - name: "Limpiar servicio de migración"
+      ansible.builtin.command: "docker service rm {{ app_actual.nombre }}_migrator"
+
+  when: app_actual.nombre == 'chatwoot' and (config_stack.changed or config_env.changed)

@@ -1,0 +1,10 @@
+# Catálogo de Aplicaciones
+aplicaciones_orion:
+  - nombre: chatwoot
+    habilitado: true
+    dominio: "chatwoot.local"
+    usuario_admin: "admin@chatwoot.local"
+    password_db: "secretDBpass"
+    dependencias:
+      redis: interna
+      postgres: interna

@@ -13,6 +13,7 @@
   roles:
     - common
     - docker
+    - desplegador_aplicaciones
 
   post_tasks:
     - name: "Informe Final: Resumen de Versiones"
