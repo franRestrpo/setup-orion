@@ -14,5 +14,5 @@
   include_tasks: procesar_aplicacion.yml
   loop: "{{ aplicaciones_orion }}"
   loop_control:
-    loop_var: app_actual
-  when: app_actual.habilitado | default(false)
+    loop_var: app_item
+  when: app_item.habilitado | default(false)
