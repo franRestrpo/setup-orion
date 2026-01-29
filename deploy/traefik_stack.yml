@@ -1,10 +1,9 @@
 version: "3.7"
 services:
-
-## --------------------------- ORION --------------------------- ##
+  ## --------------------------- ORION --------------------------- ##
 
   traefik:
-    image: traefik:v3.5.3
+    image: traefik:latest
     command:
       - "--api.dashboard=true"
       - "--providers.swarm=true"
@@ -50,20 +49,23 @@ services:
         - "traefik.enable=true"
         - "traefik.http.middlewares.redirect-https.redirectscheme.scheme=https"
         - "traefik.http.middlewares.redirect-https.redirectscheme.permanent=true"
-        - "traefik.http.routers.http-catchall.rule=Host(`{host:.+}`)"
+        - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
         - "traefik.http.routers.http-catchall.entrypoints=web"
         - "traefik.http.routers.http-catchall.middlewares=redirect-https@docker"
         - "traefik.http.routers.http-catchall.priority=1"
-        # Dashboard labels
+        # Dashboard labels (Added to maintain access)
         - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
+        - "traefik.http.routers.traefik.service=api@internal"
         - "traefik.http.services.traefik.loadbalancer.server.port=8080"
         - "traefik.http.routers.traefik.tls.certresolver=letsencryptresolver"
-        - "traefik.http.routers.traefik.service=traefik"
         - "traefik.http.routers.traefik.entrypoints=websecure"
-        - "traefik.http.routers.traefik.priority=1"
-        - "traefik.http.routers.traefik.middlewares=authtraefik"
+        - "traefik.http.routers.traefik.priority=10"
+        - "traefik.http.routers.traefik.middlewares=authtraefik,dashboard-redirect"
         # Basic Auth Middleware (User: admin)
-        - "traefik.http.middlewares.authtraefik.basicauth.users=admin:$2b$12$dJxbToRog.USrPHBU3VvwuodJ0wO7kXfIAJ/YBBrLSr02338ED8nK"
+        - "traefik.http.middlewares.authtraefik.basicauth.users=admin:$$2y$$05$$PGnPXJfTXyXGOEeWo.qp5OxvyOhEpziqNA9LT25hP23MTniqBPkJy"
+        # Dashboard Redirect Middleware
+        - "traefik.http.middlewares.dashboard-redirect.redirectregex.regex=^https?://traefik.localhost/?$$"
+        - "traefik.http.middlewares.dashboard-redirect.redirectregex.replacement=https://traefik.localhost/dashboard/"
 
 ## --------------------------- ORION --------------------------- ##
 

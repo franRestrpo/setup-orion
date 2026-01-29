@@ -11,9 +11,12 @@
       failed_when: false
 
   roles:
-    - common
-    - docker
-    - desplegador_aplicaciones
+    - { role: common, tags: ["common"] }
+    - { role: docker, tags: ["docker"] }
+    - {
+        role: desplegador_aplicaciones,
+        tags: ["desplegador_aplicaciones", "apps"],
+      }
 
   post_tasks:
     - name: "Informe Final: Resumen de Versiones"
